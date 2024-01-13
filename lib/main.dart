@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:docare/doc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -80,23 +81,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyApp()),
+                    MaterialPageRoute(builder: (context) => Document()),
                   );
                 },
-                // style pour le bouton "Get Started !"
+                // style pour le bouton "Mes documents"
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white, // Couleur de fond du bouton
                     foregroundColor: Color.fromARGB(255, 53, 0, 243), // Couleur du texte du bouton
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 17),
                   ),
-                  child: const Text('Créer un compte', style: TextStyle(fontSize: 20)),
+                  child: const Text('Mes documents', style: TextStyle(fontSize: 20)),
                 ),
             ),
             
             // Espacement entre les boutons //
             const SizedBox(height: 20), 
 
-            // Bouton pour la page de connexion //
+            // Bouton pour la page 2 //
             SizedBox(
               width: 300,
               child :ElevatedButton(
@@ -106,13 +107,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     MaterialPageRoute(builder: (context) => MyApp()),
                   );
                 },
-                // style pour le bouton "Get Started !"
+                // style pour le bouton "Mes démarches"
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white, // Couleur de fond du bouton
                     foregroundColor: const Color.fromARGB(255, 53, 0, 243), // Couleur du texte du bouton
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 17),
                   ),
-                  child: const Text('Connexion', style: TextStyle(fontSize: 20)),
+                  child: const Text('Mes démarches', style: TextStyle(fontSize: 20)),
                 ),
             ),
 
