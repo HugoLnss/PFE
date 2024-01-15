@@ -7,54 +7,54 @@ import 'dart:html' as html; // Pour afficher une image dans un dialogue
 
 import 'package:flutter/foundation.dart'; 
 import 'dart:ui_web' as ui; // Pour afficher un pdf dans un dialogue
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 class Document extends StatelessWidget {
   
   // Méthode pour afficher un pdf dans un dialogue
   Future<void> _displayPdf(BuildContext context, Uint8List fileBytes) async {
-  // Create a Blob from the Uint8List
-  final blob = html.Blob([fileBytes], 'application/pdf');
-  // Create an object URL for the Blob
-  final url = html.Url.createObjectUrlFromBlob(blob);
 
-  // Define a unique ID for the view
-  final uniqueId = 'pdf-viewer-${DateTime.now().millisecondsSinceEpoch}';
+    // Create a Blob from the Uint8List
+    final blob = html.Blob([fileBytes], 'application/pdf');
+    // Create an object URL for the Blob
+    final url = html.Url.createObjectUrlFromBlob(blob);
 
-  // Register the view factory if not already registered
-  // Note: The new API does not require checking if it's registered
-  ui.platformViewRegistry.registerViewFactory(
-    uniqueId,
-    (int viewId) => html.IFrameElement()
-      ..src = url
-      ..style.border = 'none'
-      ..style.width = '100%'
-      ..style.height = '100%'
-  );
+    // Define a unique ID for the view
+    final uniqueId = 'pdf-viewer-${DateTime.now().millisecondsSinceEpoch}';
 
-  // Display the PDF in an AlertDialog
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: Container(
-          height: 400, // Set the height of the dialog
-          width: 600,
-          child: HtmlElementView(viewType: uniqueId),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Fermer'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              html.Url.revokeObjectUrl(url);
-            },
+    // Register the view factory if not already registered
+    // Note: The new API does not require checking if it's registered
+    ui.platformViewRegistry.registerViewFactory(
+      uniqueId,
+      (int viewId) => html.IFrameElement()
+        ..src = url
+        ..style.border = 'none'
+        ..style.width = '100%'
+        ..style.height = '100%'
+    );
+
+    // Display the PDF in an AlertDialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            height: 400, // Set the height of the dialog
+            width: 600,
+            child: HtmlElementView(viewType: uniqueId),
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: <Widget>[
+            TextButton(
+              child: Text('Fermer'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                html.Url.revokeObjectUrl(url);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // Méthode pour construire la barre de recherche
   Widget buildTopBar(BuildContext context) {
@@ -79,15 +79,10 @@ class Document extends StatelessWidget {
                   // async pour pouvoir utiliser await
                   FilePickerResult? result =
                       await FilePicker.platform.pickFiles(
-                    // Sélectionner un fichier
-                    type: FileType.custom,
-                    allowedExtensions: [
-                      'jpg',
-                      'jpeg',
-                      'png',
-                      'pdf'
-                    ], // Extensions de fichier autorisées
-                  );
+                        withData: true,
+                        type: FileType.custom,
+                        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'], // Extensions de fichier autorisées
+                      );
 
                   if (result != null) {
                     PlatformFile file = result.files.first;

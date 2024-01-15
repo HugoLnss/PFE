@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:docare/doc.dart';
-
+import 'package:docare/doc_mobile.dart' // par defaut charge la version mobile
+    if (dart.library.html) 'package:docare/doc_web.dart'; // sinon charge la version web 
+    
 void main() {
   runApp(const MyApp());
 }
