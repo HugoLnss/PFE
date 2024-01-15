@@ -3,13 +3,20 @@ import 'package:docare/main.dart';
 import 'package:file_picker/file_picker.dart'; // Pour sélectionner un fichier
 import 'dart:typed_data'; // Pour convertir un fichier en bytes
 import 'dart:html' as html; // Pour afficher une image dans un dialogue
-
+import 'package:flutter/services.dart' show rootBundle; // Pour charger un fichier depuis les assets
 
 import 'package:flutter/foundation.dart'; 
 import 'dart:ui_web' as ui; // Pour afficher un pdf dans un dialogue
 
 class Document extends StatelessWidget {
   
+  // Méthode pour charger un pdf depuis les assets
+  Future<Uint8List> loadPdfFromAssets(String path) async {
+    final byteData = await rootBundle.load(path);
+    return byteData.buffer.asUint8List();
+} 
+
+
   // Méthode pour afficher un pdf dans un dialogue
   Future<void> _displayPdf(BuildContext context, Uint8List fileBytes) async {
 
@@ -74,7 +81,7 @@ class Document extends StatelessWidget {
           Flexible(
             child: ConstrainedBox(
               constraints: BoxConstraints.tightFor(width: buttonWidth),
-              child: ElevatedButton(
+              child: ElevatedButton( // Bouton pour ajouter un document
                 onPressed: () async {
                   // async pour pouvoir utiliser await
                   FilePickerResult? result =
@@ -134,10 +141,8 @@ class Document extends StatelessWidget {
                   ),
                 ),
                 child: screenWidth > 700
-                    ? Text(
-                        'Ajouter un document') // Si l'écran est large (texte)
-                    : Icon(Icons.add,
-                        color: Colors.blue), // Si l'écran est petit (icone)
+                    ? Text('Ajouter un document') // Si l'écran est large (texte)
+                    : Icon(Icons.add, color: Colors.blue) // Si l'écran est petit (icone)
               ),
             ),
           ),
@@ -229,8 +234,7 @@ class Document extends StatelessWidget {
               ],
             ),
           ),
-          buildTopBar(
-              context), // Barre de recherche (voir la méthode buildTopBar)
+          buildTopBar(context), // Barre de recherche (voir la méthode buildTopBar)
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(4.0),
@@ -245,9 +249,40 @@ class Document extends StatelessWidget {
                 return Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
-                    onTap: () {
-                      // Code pour visualiser le document
+                    // Code pour visualiser le document
+                    onTap: () async {
+                      //var document = documentsList[index]; // il faut créer une liste de documents
+                      String document = index % 2 == 0 
+                        ? 'assets/images/CNI_example.png' 
+                        : 'assets/images/ordonnance-pharmacie-1.png';
+                      //String fileName = document['name']; // Get the filename from the document data
+                      String fileExtension = document.split('.').last; // Extract the file extension
+
+                      if (['jpg', 'jpeg', 'png'].contains(fileExtension)) {
+                        // It's an image
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              content: Image.asset(document), // Use the path from the document data
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Fermer'),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else if (fileExtension == 'pdf') {
+                        final fileBytes = await loadPdfFromAssets(document); // Charge le pdf depuis les assets
+                        _displayPdf(context, fileBytes); // Appelle la methode pour afficher le pdf
+                        
+                      } else {
+                        print("Type de fichier non supporté pour la visualisation directe.");
+                      }
                     },
+
                     child: GridTile(
                       footer: Container(
                         padding: const EdgeInsets.all(4.0),
