@@ -5,7 +5,11 @@ import 'dart:typed_data'; // Pour convertir un fichier en bytes
 import 'package:docare/pdf_view_mobile.dart'; // Pour afficher un fichier PDF dans une nouvelle page
 import 'package:flutter/foundation.dart'; 
 
-class Document extends StatelessWidget {
+import 'package:provider/provider.dart';
+import 'package:docare/user.dart';
+import 'package:docare/document.dart';
+
+class DocumentInterface extends StatelessWidget {
   
 
   // Méthode pour construire la barre de recherche
@@ -156,6 +160,8 @@ class Document extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<User>(context, listen: false);
+    
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -207,7 +213,7 @@ class Document extends StatelessWidget {
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
-              itemCount: 15, // Remplacer par le nombre réel de documents
+              itemCount: userProvider.documentList.length, // Remplacer par le nombre réel de documents
               itemBuilder: (context, index) {
                 return Card(
                   clipBehavior: Clip.antiAlias,
@@ -220,20 +226,16 @@ class Document extends StatelessWidget {
                         padding: const EdgeInsets.all(4.0),
                         color: Colors.blue.withOpacity(0.8),
                         child: Text(
-                          'document_$index.pdf',
+                          userProvider.documentList[index].title,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: index % 2 == 0 // Pour alterner les images
-                          ? Image.asset(
-                              'assets/images/CNI_example.png',
+                      child: Image.asset(
+                              userProvider.documentList[index].path,
                               fit: BoxFit.cover,
                             )
-                          : Image.asset(
-                              'assets/images/ordonnance-pharmacie-1.png',
-                              fit: BoxFit.cover,
-                            ),
+
                     ),
                   ),
                 );

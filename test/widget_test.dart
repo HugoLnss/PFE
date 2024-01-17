@@ -9,12 +9,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:docare/main.dart';
+import 'package:provider/provider.dart';
+import 'package:docare/user.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
+    await tester.pumpWidget(
+  ChangeNotifierProvider<User>(
+    create: (context) => User(
+      userId: 1,
+      username: 'Lucas',
+      email: 'lucas@gmail.com',
+      passwordHash: 'password',
+      documentList: [],
+    ),
+    child: MyApp(),
+  ),
+);
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
     expect(find.text('1'), findsNothing);

@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:docare/main.dart';
 import 'package:file_picker/file_picker.dart'; // Pour sélectionner un fichier
 import 'dart:typed_data'; // Pour convertir un fichier en bytes
-import 'dart:html' as html; // Pour afficher une image dans un dialogue
 import 'package:flutter/services.dart' show rootBundle; // Pour charger un fichier depuis les assets
+import 'package:provider/provider.dart'; // Pour utiliser le provider
+import 'package:docare/user.dart'; // Classe User
+import 'package:docare/document.dart'; // Classe Document
 
 import 'package:flutter/foundation.dart'; 
+import 'dart:html' as html; // Pour afficher une image dans un dialogue
 import 'dart:ui_web' as ui; // Pour afficher un pdf dans un dialogue
 
-class Document extends StatelessWidget {
+class DocumentInterface extends StatelessWidget {
   
   // Méthode pour charger un pdf depuis les assets
   Future<Uint8List> loadPdfFromAssets(String path) async {
@@ -194,6 +197,8 @@ class Document extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<User>(context, listen: false);
+    
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -244,21 +249,17 @@ class Document extends StatelessWidget {
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
-              itemCount: 15, // Remplacer par le nombre réel de documents
+              itemCount: userProvider.documentList.length, // Remplacer par le nombre réel de documents
               itemBuilder: (context, index) {
                 return Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     // Code pour visualiser le document
                     onTap: () async {
-                      //var document = documentsList[index]; // il faut créer une liste de documents
-                      String document = index % 2 == 0 
-                        ? 'assets/images/CNI_example.png' 
-                        : 'assets/images/ordonnance-pharmacie-1.png';
-                      //String fileName = document['name']; // Get the filename from the document data
+                      String document = userProvider.documentList[index].path; // Récupère le chemin du document
                       String fileExtension = document.split('.').last; // Extract the file extension
-
-                      if (['jpg', 'jpeg', 'png'].contains(fileExtension)) {
+                      
+                      if (userProvider.documentList[index].fileType == 'img') {
                         // It's an image
                         showDialog(
                           context: context,
@@ -266,6 +267,8 @@ class Document extends StatelessWidget {
                             return AlertDialog(
                               content: Image.asset(document), // Use the path from the document data
                               actions: <Widget>[
+                                Text(userProvider.documentList[index].title),                                
+                                SizedBox(width: MediaQuery.of(context).size.width / 15), // Ajuster la taille du SizedBox si nécessaire
                                 TextButton(
                                   child: const Text('Fermer'),
                                   onPressed: () => Navigator.of(context).pop(),
@@ -274,7 +277,7 @@ class Document extends StatelessWidget {
                             );
                           },
                         );
-                      } else if (fileExtension == 'pdf') {
+                      } else if (userProvider.documentList[index].fileType == 'pdf') {
                         final fileBytes = await loadPdfFromAssets(document); // Charge le pdf depuis les assets
                         _displayPdf(context, fileBytes); // Appelle la methode pour afficher le pdf
                         
@@ -288,20 +291,15 @@ class Document extends StatelessWidget {
                         padding: const EdgeInsets.all(4.0),
                         color: Colors.blue.withOpacity(0.8),
                         child: Text(
-                          'document_$index.pdf',
+                          userProvider.documentList[index].title,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: index % 2 == 0 // Pour alterner les images
-                          ? Image.asset(
-                              'assets/images/CNI_example.png',
+                      child: Image.asset(
+                              userProvider.documentList[index].path,
                               fit: BoxFit.cover,
                             )
-                          : Image.asset(
-                              'assets/images/ordonnance-pharmacie-1.png',
-                              fit: BoxFit.cover,
-                            ),
                     ),
                   ),
                 );
