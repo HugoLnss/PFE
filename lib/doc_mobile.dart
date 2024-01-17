@@ -3,15 +3,13 @@ import 'package:docare/main.dart';
 import 'package:file_picker/file_picker.dart'; // Pour sélectionner un fichier
 import 'dart:typed_data'; // Pour convertir un fichier en bytes
 import 'package:docare/pdf_view_mobile.dart'; // Pour afficher un fichier PDF dans une nouvelle page
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/foundation.dart';
 
 import 'package:provider/provider.dart';
 import 'package:docare/user.dart';
 import 'package:docare/document.dart';
 
 class DocumentInterface extends StatelessWidget {
-  
-
   // Méthode pour construire la barre de recherche
   Widget buildTopBar(BuildContext context) {
     // Utilisez MediaQuery pour obtenir la largeur de l'écran
@@ -37,7 +35,12 @@ class DocumentInterface extends StatelessWidget {
                       await FilePicker.platform.pickFiles(
                     withData: true, // Récupérer les données du fichier
                     type: FileType.custom,
-                    allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'], // Extensions de fichier autorisées
+                    allowedExtensions: [
+                      'jpg',
+                      'jpeg',
+                      'png',
+                      'pdf'
+                    ], // Extensions de fichier autorisées
                   );
 
                   if (result != null) {
@@ -64,12 +67,10 @@ class DocumentInterface extends StatelessWidget {
                             ],
                           ),
                         );
-                        
                       } else {
                         // Handle the situation where bytes are not available
                         print('Error: File bytes are null');
                       }
-                      
                     } else if (file.extension == 'pdf') {
                       // Afficher le fichier PDF dans un dialogue
                       Uint8List? fileBytes = file.bytes;
@@ -78,13 +79,13 @@ class DocumentInterface extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PdfViewPage(fileBytes: fileBytes),
+                            builder: (context) =>
+                                PdfViewPage(fileBytes: fileBytes),
                           ),
                         );
                       } else {
                         print('Error: File bytes are null');
                       }
-
                     } else {
                       // Gérer les autres types de fichiers ici
                       print(
@@ -161,7 +162,7 @@ class DocumentInterface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<User>(context, listen: false);
-    
+
     return Scaffold(
       body: Column(
         children: <Widget>[
@@ -213,7 +214,8 @@ class DocumentInterface extends StatelessWidget {
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
-              itemCount: userProvider.documentList.length, // Remplacer par le nombre réel de documents
+              itemCount: userProvider.documentList
+                  .length, // Remplacer par le nombre réel de documents
               itemBuilder: (context, index) {
                 return Card(
                   clipBehavior: Clip.antiAlias,
@@ -231,11 +233,16 @@ class DocumentInterface extends StatelessWidget {
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: Image.asset(
+                      child: userProvider.documentList[index].fileType == 'img'
+                          ? // Conditionally render the Image.asset widget
+                          Image.asset(
                               userProvider.documentList[index].path,
                               fit: BoxFit.cover,
                             )
-
+                          : const Icon(Icons.picture_as_pdf,
+                              size: 50,
+                              color: Colors
+                                  .blue), // Render the Icon widget if it's not an image
                     ),
                   ),
                 );
