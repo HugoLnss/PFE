@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:docare/doc_mobile.dart' // par defaut charge la version mobile
+    if (dart.library.html) 'package:docare/doc_web.dart'; // sinon charge la version web 
+    
 void main() {
   runApp(const MyApp());
 }
@@ -11,13 +13,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'DOCare',
       theme: ThemeData(
         
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'DOCare Home Page'),
     );
   }
 }
@@ -47,19 +49,19 @@ class _MyHomePageState extends State<MyHomePage> {
           gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
-            colors: [Color.fromARGB(255, 84, 47, 219), Colors.white],
+            colors: [Color.fromARGB(255, 53, 0, 243), Colors.white],
           ),
         ),
         child: Column(
           
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Spacer(flex: 2),
+
             Image.asset(
               'assets/images/docare_logo.png',
-              width: 200,  // Largeur personnalisée
-              height: 200, // Hauteur personnalisée
-              fit: BoxFit.contain, // Cela garantit que le logo est entièrement visible
+              width: 200,  
+              height: 200, 
+              fit: BoxFit.contain, 
             ),
             const Text(
               'Bienvenue sur DOCare !',
@@ -80,23 +82,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyApp()),
+                    MaterialPageRoute(builder: (context) => Document()),
                   );
                 },
-                // style pour le bouton "Get Started !"
+                // style pour le bouton "Mes documents"
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white, // Couleur de fond du bouton
-                    foregroundColor: Color.fromARGB(255, 84, 47, 219), // Couleur du texte du bouton
+                    foregroundColor: Color.fromARGB(255, 53, 0, 243), // Couleur du texte du bouton
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 17),
                   ),
-                  child: const Text('Créer un compte', style: TextStyle(fontSize: 20)),
+                  child: const Text('Mes documents', style: TextStyle(fontSize: 20)),
                 ),
             ),
             
             // Espacement entre les boutons //
             const SizedBox(height: 20), 
 
-            // Bouton pour la page de connexion //
+            // Bouton pour la page 2 //
             SizedBox(
               width: 300,
               child :ElevatedButton(
@@ -106,13 +108,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     MaterialPageRoute(builder: (context) => MyApp()),
                   );
                 },
-                // style pour le bouton "Get Started !"
+                // style pour le bouton "Mes démarches"
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white, // Couleur de fond du bouton
-                    foregroundColor: const Color.fromARGB(255, 84, 47, 219), // Couleur du texte du bouton
+                    foregroundColor: const Color.fromARGB(255, 53, 0, 243), // Couleur du texte du bouton
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 17),
                   ),
-                  child: const Text('Connexion', style: TextStyle(fontSize: 20)),
+                  child: const Text('Mes démarches', style: TextStyle(fontSize: 20)),
                 ),
             ),
 
