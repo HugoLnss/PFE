@@ -12,6 +12,8 @@ import 'package:flutter/foundation.dart';
 import 'dart:html' as html; // Pour afficher une image dans un dialogue
 import 'dart:ui_web' as ui; // Pour afficher un pdf dans un dialogue
 
+import 'package:docare/footer_web.dart'; // Pour afficher le footer
+
 class DocumentInterface extends StatefulWidget {
   @override
   _DocumentInterfaceState createState() => _DocumentInterfaceState();
@@ -104,7 +106,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
 
     // Déterminez la taille des boutons en fonction de la largeur de l'écran
     double buttonWidth = screenWidth > 600 ? 200 : screenWidth / 4;
-    double padding = screenWidth > 600 ? 50.0 : 8.0;
+    double padding = screenWidth > 600 ? 10.0 : 8.0;
 
     return Container(
       alignment: Alignment.center,
@@ -227,7 +229,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
         children: <Widget>[
           Container(
             color: Colors.blue,
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(14.0),
             margin: const EdgeInsets.only(bottom: 0.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -342,7 +344,10 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
               },
             ),
           ),
+          MyFooter(), // Affiche le footer
         ],
+        
+        
       ),
     );
   }
