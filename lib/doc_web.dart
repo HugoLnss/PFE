@@ -12,13 +12,18 @@ import 'package:flutter/foundation.dart';
 import 'dart:html' as html; // Pour afficher une image dans un dialogue
 import 'dart:ui_web' as ui; // Pour afficher un pdf dans un dialogue
 
-class DocumentInterface extends StatelessWidget {
+class DocumentInterface extends StatefulWidget {
+  @override
+  _DocumentInterfaceState createState() => _DocumentInterfaceState();
+}
+
+class _DocumentInterfaceState extends State<DocumentInterface> {
   // Méthode pour charger un pdf depuis les assets
   Future<Uint8List> loadPdfFromAssets(String path) async {
     final byteData = await rootBundle.load(path);
     return byteData.buffer.asUint8List();
   }
-  
+
   // Méthode pour afficher un pdf dans un dialogue
   Future<void> _displayPdf(BuildContext context, Uint8List fileBytes) async {
     // Create a Blob from the Uint8List
@@ -61,6 +66,35 @@ class DocumentInterface extends StatelessWidget {
         );
       },
     );
+  }
+
+  TextEditingController searchController =
+      TextEditingController(); // Contrôleur pour la barre de recherche
+  List<Document> filteredDocuments = []; // Liste des documents filtrés
+
+  @override
+  void initState() {
+    // Méthode appelée au démarrage de l'application
+    super.initState();
+    // Assuming `Provider.of<User>(context, listen: false).documentList` is your initial full list
+    filteredDocuments = Provider.of<User>(context, listen: false).documentList;
+  }
+
+  // Méthode pour rechercher un document
+  void searchDocuments(String query) {
+    final documents = Provider.of<User>(context, listen: false).documentList;
+    if (query.isEmpty) {
+      setState(() {
+        filteredDocuments = documents;
+      });
+    } else {
+      setState(() {
+        filteredDocuments = documents
+            .where(
+                (doc) => doc.title.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      });
+    }
   }
 
   // Méthode pour construire la barre de recherche
@@ -158,11 +192,12 @@ class DocumentInterface extends StatelessWidget {
           ),
           const SizedBox(width: 8.0),
           // Expanded fait que la barre de recherche prend le reste de l'espace disponible
-          const Expanded(
+          Expanded(
             flex:
                 2, // Donne plus de flexibilité à la barre de recherche par rapport aux boutons
             child: TextField(
-              decoration: InputDecoration(
+              controller: searchController,
+              decoration: const InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Rechercher un document',
@@ -172,31 +207,12 @@ class DocumentInterface extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
               ),
+              onChanged: (value) => searchDocuments(value), // Recherche
             ),
           ),
           const SizedBox(width: 8.0),
           // Utilisez Flexible pour que le bouton "Rechercher" s'adapte à la taille de l'écran
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints.tightFor(width: buttonWidth),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Code pour ajouter un document
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue,
-                  textStyle: TextStyle(
-                    fontSize: screenWidth > 600 ? 20 : 14,
-                  ),
-                ),
-                child: screenWidth > 700
-                    ? Text('Rechercher') // Si l'écran est large (texte)
-                    : Icon(Icons.search,
-                        color: Colors.blue), // Si l'écran est petit (icone)
-              ),
-            ),
-          ),
+          
         ],
       ),
     );
@@ -247,7 +263,7 @@ class DocumentInterface extends StatelessWidget {
             ),
           ),
           buildTopBar(
-              context), // Barre de recherche (voir la méthode buildTopBar)
+              context), 
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(4.0),
@@ -257,18 +273,17 @@ class DocumentInterface extends StatelessWidget {
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
-              itemCount: userProvider.documentList
-                  .length, // Remplacer par le nombre réel de documents
+              itemCount: filteredDocuments
+                  .length, // Remplacer par le nombre réel de documents (ou recherchés)
               itemBuilder: (context, index) {
                 return Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
                     // Code pour visualiser le document
                     onTap: () async {
-                      String document = userProvider.documentList[index]
-                          .path; // Récupère le chemin du document
+                      String document = filteredDocuments[index].path; // Récupère le chemin du document
 
-                      if (userProvider.documentList[index].fileType == 'img') {
+                      if (filteredDocuments[index].fileType == 'img') {
                         // It's an image
                         showDialog(
                           context: context,
@@ -277,7 +292,7 @@ class DocumentInterface extends StatelessWidget {
                               content: Image.asset(
                                   document), // Use the path from the document data
                               actions: <Widget>[
-                                Text(userProvider.documentList[index].title),
+                                Text(filteredDocuments[index].title),
                                 SizedBox(
                                     width: MediaQuery.of(context).size.width /
                                         15), // Ajuster la taille du SizedBox si nécessaire
@@ -289,7 +304,7 @@ class DocumentInterface extends StatelessWidget {
                             );
                           },
                         );
-                      } else if (userProvider.documentList[index].fileType ==
+                      } else if (filteredDocuments[index].fileType ==
                           'pdf') {
                         final fileBytes = await loadPdfFromAssets(
                             document); // Charge le pdf depuis les assets
@@ -306,15 +321,15 @@ class DocumentInterface extends StatelessWidget {
                         padding: const EdgeInsets.all(4.0),
                         color: Colors.blue.withOpacity(0.8),
                         child: Text(
-                          userProvider.documentList[index].title,
+                          filteredDocuments[index].title,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: userProvider.documentList[index].fileType == 'img'
+                      child: filteredDocuments[index].fileType == 'img'
                           ? // Conditionally render the Image.asset widget
                           Image.asset(
-                              userProvider.documentList[index].path,
+                              filteredDocuments[index].path,
                               fit: BoxFit.cover,
                             )
                           : const Icon(Icons.picture_as_pdf,
