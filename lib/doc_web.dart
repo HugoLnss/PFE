@@ -18,7 +18,7 @@ class DocumentInterface extends StatelessWidget {
     final byteData = await rootBundle.load(path);
     return byteData.buffer.asUint8List();
   }
-
+  
   // Méthode pour afficher un pdf dans un dialogue
   Future<void> _displayPdf(BuildContext context, Uint8List fileBytes) async {
     // Create a Blob from the Uint8List

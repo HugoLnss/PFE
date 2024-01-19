@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:docare/main.dart';
 import 'package:file_picker/file_picker.dart'; // Pour sélectionner un fichier
@@ -9,7 +10,53 @@ import 'package:provider/provider.dart';
 import 'package:docare/user.dart';
 import 'package:docare/document.dart';
 
+// imports pour open_filex (pour ouvrir les fichiers)
+import 'package:open_filex/open_filex.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
 class DocumentInterface extends StatelessWidget {
+
+  // This method uses open_filex to open the file.
+  void _openFile(Document file, BuildContext context) async {
+
+    if(file.fileType == 'pdf') {
+      // Si le document est un PDF
+      final byteData = await rootBundle.load(file.path);
+      final tempDir = await getTemporaryDirectory();
+      final fileName = file.path.split('/').last;
+      final tempFile = File('${tempDir.path}/$fileName');
+      await tempFile.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes), flush: true);
+
+      final result = await OpenFilex.open(tempFile.path);
+
+      // If the PDF couldn't be opened, show an error.
+      if (result.type != ResultType.done) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to open the file: ${result.message}"),
+          ),
+        );
+      }
+    } else if (file.fileType == 'img') {
+      // Si le document est une image
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Image.asset(file.path), // Assuming `path` is a valid asset path
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Fermer'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    }
+    
+  }
+
   // Méthode pour construire la barre de recherche
   Widget buildTopBar(BuildContext context) {
     // Utilisez MediaQuery pour obtenir la largeur de l'écran
@@ -72,20 +119,7 @@ class DocumentInterface extends StatelessWidget {
                         print('Error: File bytes are null');
                       }
                     } else if (file.extension == 'pdf') {
-                      // Afficher le fichier PDF dans un dialogue
-                      Uint8List? fileBytes = file.bytes;
-                      if (fileBytes != null) {
-                        // Navigate to a new screen that displays the PDF
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                PdfViewPage(fileBytes: fileBytes),
-                          ),
-                        );
-                      } else {
-                        print('Error: File bytes are null');
-                      }
+                      // Ne pas afficher le fichier PDF dans un dialogue
                     } else {
                       // Gérer les autres types de fichiers ici
                       print(
@@ -222,6 +256,11 @@ class DocumentInterface extends StatelessWidget {
                   child: InkWell(
                     onTap: () {
                       // Code pour visualiser le document
+
+                      // Vérifiez si le fichier est une image
+                      Document file = userProvider.documentList[index];
+                      _openFile(file, context);
+                      
                     },
                     child: GridTile(
                       footer: Container(
@@ -233,13 +272,16 @@ class DocumentInterface extends StatelessWidget {
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: userProvider.documentList[index].fileType == 'img'
+                      child: userProvider.documentList[index].fileType ==
+                              'img' // Si le document est une image
                           ? // Conditionally render the Image.asset widget
                           Image.asset(
                               userProvider.documentList[index].path,
                               fit: BoxFit.cover,
                             )
-                          : const Icon(Icons.picture_as_pdf,
+                          : const Icon(
+                              Icons
+                                  .picture_as_pdf, // Sinon, afficher l'icone PDF
                               size: 50,
                               color: Colors
                                   .blue), // Render the Icon widget if it's not an image
