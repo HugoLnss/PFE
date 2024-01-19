@@ -3,20 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:docare/main.dart';
 import 'package:file_picker/file_picker.dart'; // Pour sélectionner un fichier
 import 'dart:typed_data'; // Pour convertir un fichier en bytes
-import 'package:docare/pdf_view_mobile.dart'; // Pour afficher un fichier PDF dans une nouvelle page
 import 'package:flutter/foundation.dart';
 
-import 'package:provider/provider.dart';
-import 'package:docare/user.dart';
-import 'package:docare/document.dart';
+import 'package:provider/provider.dart'; // Pour utiliser le provider 
+import 'package:docare/user.dart'; // Pour utiliser la classe User
+import 'package:docare/document.dart'; // Pour utiliser la classe Document
 
 // imports pour open_filex (pour ouvrir les fichiers)
 import 'package:open_filex/open_filex.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+import 'dart:io'; 
+import 'package:path_provider/path_provider.dart'; 
 
-class DocumentInterface extends StatelessWidget {
+class DocumentInterface extends StatefulWidget {
+  @override
+  _DocumentInterfaceState createState() => _DocumentInterfaceState();
+}
+
+class _DocumentInterfaceState extends State<DocumentInterface> {
 
   // This method uses open_filex to open the file.
   void _openFile(Document file, BuildContext context) async {
@@ -101,25 +105,17 @@ class DocumentInterface extends StatelessWidget {
                         // Proceed with your logic
                         Widget image = Image.memory(fileBytes);
 
-                        // Afficher l'image dans un dialogue
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            content: image,
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text('Fermer'),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
-                          ),
-                        );
+                        // Ajouter le document à la liste des documents de l'utilisateur
+                        // TO DO: 
+                        
+
+
                       } else {
                         // Handle the situation where bytes are not available
                         print('Error: File bytes are null');
                       }
                     } else if (file.extension == 'pdf') {
-                      // Ne pas afficher le fichier PDF dans un dialogue
+                      // Faire de même pour les PDF
                     } else {
                       // Gérer les autres types de fichiers ici
                       print(
@@ -130,7 +126,7 @@ class DocumentInterface extends StatelessWidget {
                     print('Aucun fichier sélectionné.');
                   }
                 },
-                style: ElevatedButton.styleFrom(
+                style: ElevatedButton.styleFrom( // Style du bouton
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue,
                   textStyle: TextStyle(
@@ -139,7 +135,7 @@ class DocumentInterface extends StatelessWidget {
                         : 14, // Ajuster cette valeur si nécessaire
                   ),
                 ),
-                child: screenWidth > 700
+                child: screenWidth > 700 // S'adapter à la taille de l'écran
                     ? Text(
                         'Ajouter un document') // Si l'écran est large (texte)
                     : Icon(Icons.add,
@@ -147,13 +143,14 @@ class DocumentInterface extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8.0),
+          const SizedBox(width: 8.0), // Espace entre les boutons
           // Expanded fait que la barre de recherche prend le reste de l'espace disponible
-          const Expanded(
+          Expanded(
             flex:
                 2, // Donne plus de flexibilité à la barre de recherche par rapport aux boutons
             child: TextField(
-              decoration: InputDecoration(
+              controller: searchController,
+              decoration: const InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Rechercher un document',
@@ -163,34 +160,43 @@ class DocumentInterface extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
               ),
+              onChanged: (value) => searchDocuments(value), // Recherche
             ),
           ),
           const SizedBox(width: 8.0),
-          // Utilisez Flexible pour que le bouton "Rechercher" s'adapte à la taille de l'écran
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints.tightFor(width: buttonWidth),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Code pour ajouter un document
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue,
-                  textStyle: TextStyle(
-                    fontSize: screenWidth > 600 ? 20 : 14,
-                  ),
-                ),
-                child: screenWidth > 700
-                    ? Text('Rechercher') // Si l'écran est large (texte)
-                    : Icon(Icons.search,
-                        color: Colors.blue), // Si l'écran est petit (icone)
-              ),
-            ),
-          ),
+          
         ],
       ),
     );
+  }
+
+  TextEditingController searchController =
+      TextEditingController(); // Contrôleur pour la barre de recherche
+  List<Document> filteredDocuments = []; // Liste des documents filtrés
+
+  @override
+  void initState() {
+    // Méthode appelée au démarrage de l'application
+    super.initState();
+    // Assuming `Provider.of<User>(context, listen: false).documentList` is your initial full list
+    filteredDocuments = Provider.of<User>(context, listen: false).documentList;
+  }
+
+  // Méthode pour rechercher un document
+  void searchDocuments(String query) {
+    final documents = Provider.of<User>(context, listen: false).documentList;
+    if (query.isEmpty) {
+      setState(() {
+        filteredDocuments = documents;
+      });
+    } else {
+      setState(() {
+        filteredDocuments = documents
+            .where(
+                (doc) => doc.title.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      });
+    }
   }
 
   @override
@@ -248,7 +254,7 @@ class DocumentInterface extends StatelessWidget {
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
-              itemCount: userProvider.documentList
+              itemCount: filteredDocuments
                   .length, // Remplacer par le nombre réel de documents
               itemBuilder: (context, index) {
                 return Card(
@@ -258,7 +264,7 @@ class DocumentInterface extends StatelessWidget {
                       // Code pour visualiser le document
 
                       // Vérifiez si le fichier est une image
-                      Document file = userProvider.documentList[index];
+                      Document file = filteredDocuments[index];
                       _openFile(file, context);
                       
                     },
@@ -267,16 +273,16 @@ class DocumentInterface extends StatelessWidget {
                         padding: const EdgeInsets.all(4.0),
                         color: Colors.blue.withOpacity(0.8),
                         child: Text(
-                          userProvider.documentList[index].title,
+                          filteredDocuments[index].title,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: userProvider.documentList[index].fileType ==
+                      child: filteredDocuments[index].fileType ==
                               'img' // Si le document est une image
                           ? // Conditionally render the Image.asset widget
                           Image.asset(
-                              userProvider.documentList[index].path,
+                              filteredDocuments[index].path,
                               fit: BoxFit.cover,
                             )
                           : const Icon(
