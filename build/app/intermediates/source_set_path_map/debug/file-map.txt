@@ -18,3 +18,4 @@ com.example.docare.app-packaged_res-16 D:\projet\DOCare\PFE\build\file_picker\in
 com.example.docare.app-packaged_res-17 D:\projet\DOCare\PFE\build\flutter_pdfview\intermediates\packaged_res\debug
 com.example.docare.app-packaged_res-18 D:\projet\DOCare\PFE\build\flutter_plugin_android_lifecycle\intermediates\packaged_res\debug
 com.example.docare.app-packaged_res-19 D:\projet\DOCare\PFE\build\open_filex\intermediates\packaged_res\debug
+com.example.docare.app-packaged_res-20 D:\projet\DOCare\PFE\build\path_provider_android\intermediates\packaged_res\debug

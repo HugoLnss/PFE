@@ -1,19 +1,18 @@
-
 import 'package:flutter/material.dart';
 import 'package:docare/main.dart';
 import 'package:file_picker/file_picker.dart'; // Pour sélectionner un fichier
 import 'dart:typed_data'; // Pour convertir un fichier en bytes
 import 'package:flutter/foundation.dart';
 
-import 'package:provider/provider.dart'; // Pour utiliser le provider 
+import 'package:provider/provider.dart'; // Pour utiliser le provider
 import 'package:docare/user.dart'; // Pour utiliser la classe User
 import 'package:docare/document.dart'; // Pour utiliser la classe Document
 
 // imports pour open_filex (pour ouvrir les fichiers)
 import 'package:open_filex/open_filex.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:io'; 
-import 'package:path_provider/path_provider.dart'; 
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class DocumentInterface extends StatefulWidget {
   @override
@@ -21,17 +20,18 @@ class DocumentInterface extends StatefulWidget {
 }
 
 class _DocumentInterfaceState extends State<DocumentInterface> {
-
   // This method uses open_filex to open the file.
   void _openFile(Document file, BuildContext context) async {
-
-    if(file.fileType == 'pdf') {
+    if (file.fileType == 'pdf') {
       // Si le document est un PDF
       final byteData = await rootBundle.load(file.path);
       final tempDir = await getTemporaryDirectory();
       final fileName = file.path.split('/').last;
       final tempFile = File('${tempDir.path}/$fileName');
-      await tempFile.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes), flush: true);
+      await tempFile.writeAsBytes(
+          byteData.buffer
+              .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+          flush: true);
 
       final result = await OpenFilex.open(tempFile.path);
 
@@ -48,7 +48,8 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          content: Image.asset(file.path), // Assuming `path` is a valid asset path
+          content:
+              Image.asset(file.path), // Assuming `path` is a valid asset path
           actions: <Widget>[
             TextButton(
               child: const Text('Fermer'),
@@ -58,7 +59,6 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
         ),
       );
     }
-    
   }
 
   // Méthode pour construire la barre de recherche
@@ -76,6 +76,27 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
       color: Colors.blue,
       child: Row(
         children: <Widget>[
+          const SizedBox(width: 8.0), // Espace entre les boutons
+          // Expanded fait que la barre de recherche prend le reste de l'espace disponible
+          Expanded(
+            flex:
+                2, // Donne plus de flexibilité à la barre de recherche par rapport aux boutons
+            child: TextField(
+              controller: searchController,
+              decoration: const InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: 'Rechercher un document',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) => searchDocuments(value), // Recherche
+            ),
+          ),
+          const SizedBox(width: 8.0),
           Flexible(
             child: ConstrainedBox(
               constraints: BoxConstraints.tightFor(width: buttonWidth),
@@ -106,10 +127,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                         Widget image = Image.memory(fileBytes);
 
                         // Ajouter le document à la liste des documents de l'utilisateur
-                        // TO DO: 
-                        
-
-
+                        // TO DO:
                       } else {
                         // Handle the situation where bytes are not available
                         print('Error: File bytes are null');
@@ -126,7 +144,8 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                     print('Aucun fichier sélectionné.');
                   }
                 },
-                style: ElevatedButton.styleFrom( // Style du bouton
+                style: ElevatedButton.styleFrom(
+                  // Style du bouton
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue,
                   textStyle: TextStyle(
@@ -135,6 +154,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                         : 14, // Ajuster cette valeur si nécessaire
                   ),
                 ),
+
                 child: screenWidth > 700 // S'adapter à la taille de l'écran
                     ? Text(
                         'Ajouter un document') // Si l'écran est large (texte)
@@ -143,28 +163,32 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
               ),
             ),
           ),
-          const SizedBox(width: 8.0), // Espace entre les boutons
-          // Expanded fait que la barre de recherche prend le reste de l'espace disponible
-          Expanded(
-            flex:
-                2, // Donne plus de flexibilité à la barre de recherche par rapport aux boutons
-            child: TextField(
-              controller: searchController,
-              decoration: const InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'Rechercher un document',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                  borderSide: BorderSide.none,
+          const SizedBox(width: 8.0),
+          Flexible(
+            child: ConstrainedBox(
+              constraints: BoxConstraints.tightFor(width: buttonWidth),
+              child: ElevatedButton(
+                onPressed: () async {
+                  // TO DO: Prendre une photo
+                },
+                style: ElevatedButton.styleFrom(
+                  // Style du bouton
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue,
+                  textStyle: TextStyle(
+                    fontSize: screenWidth > 600
+                        ? 20
+                        : 14, // Ajuster cette valeur si nécessaire
+                  ),
                 ),
+
+                child: screenWidth > 700 // S'adapter à la taille de l'écran
+                    ? Text('Prendre une photo') // Si l'écran est large (texte)
+                    : Icon(Icons.camera_alt,
+                        color: Colors.blue), // Si l'écran est petit (icone)
               ),
-              onChanged: (value) => searchDocuments(value), // Recherche
             ),
           ),
-          const SizedBox(width: 8.0),
-          
         ],
       ),
     );
@@ -201,10 +225,11 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<User>(context, listen: false);
+    //final userProvider = Provider.of<User>(context, listen: false);
 
     return Scaffold(
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // Alignement à gauche
         children: <Widget>[
           Container(
             color: Colors.blue,
@@ -224,7 +249,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                     );
                   },
                   child: Image.asset(
-                    'assets/images/docare_logo2.png',
+                    'assets/images/docare_logo.png',
                     width: 50,
                     height: 50,
                   ),
@@ -245,7 +270,20 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
           ),
           buildTopBar(
               context), // Barre de recherche (voir la méthode buildTopBar)
-          Expanded(
+          // texte "Mes documents" aligné à gauche
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: filteredDocuments.isEmpty // Si aucun document n'est trouvé dans la recherche ou si aucun document n'a été ajouté
+                ? Text(
+                    "Aucun document trouvé",
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
+                  )
+                : Text(
+                    "Récemment ajoutés",
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
+                  ),
+          ),
+          Flexible(
             child: GridView.builder(
               padding: const EdgeInsets.all(4.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -260,13 +298,10 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                 return Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
-                    onTap: () {
-                      // Code pour visualiser le document
-
+                    onTap: () { // Lorsque l'utilisateur clique sur un document
                       // Vérifiez si le fichier est une image
                       Document file = filteredDocuments[index];
                       _openFile(file, context);
-                      
                     },
                     child: GridTile(
                       footer: Container(

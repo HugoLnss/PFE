@@ -58,7 +58,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Fermer'),
+              child: const Text('Fermer'),
               onPressed: () {
                 Navigator.of(context).pop();
                 html.Url.revokeObjectUrl(url);
@@ -114,6 +114,28 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
       color: Colors.blue,
       child: Row(
         children: <Widget>[
+          const SizedBox(width: 8.0),
+          // Expanded fait que la barre de recherche prend le reste de l'espace disponible
+          Expanded(
+            flex:
+                2, // Donne plus de flexibilité à la barre de recherche par rapport aux boutons
+            child: TextField(
+              controller: searchController,
+              decoration: const InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: 'Rechercher un document',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) => searchDocuments(value), // Recherche
+            ),
+          ),
+          const SizedBox(width: 8.0),
+          // Utilisez Flexible pour que le bouton "Rechercher" s'adapte à la taille de l'écran
           Flexible(
             child: ConstrainedBox(
               constraints: BoxConstraints.tightFor(width: buttonWidth),
@@ -193,27 +215,6 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
             ),
           ),
           const SizedBox(width: 8.0),
-          // Expanded fait que la barre de recherche prend le reste de l'espace disponible
-          Expanded(
-            flex:
-                2, // Donne plus de flexibilité à la barre de recherche par rapport aux boutons
-            child: TextField(
-              controller: searchController,
-              decoration: const InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'Rechercher un document',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (value) => searchDocuments(value), // Recherche
-            ),
-          ),
-          const SizedBox(width: 8.0),
-          // Utilisez Flexible pour que le bouton "Rechercher" s'adapte à la taille de l'écran
           
         ],
       ),
@@ -226,6 +227,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
 
     return Scaffold(
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // Alignement à gauche
         children: <Widget>[
           Container(
             color: Colors.blue,
@@ -266,6 +268,18 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
           ),
           buildTopBar(
               context), 
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: filteredDocuments.isEmpty // Si aucun document n'est trouvé dans la recherche ou si aucun document n'a été ajouté
+                ? Text(
+                    "Aucun document trouvé",
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
+                  )
+                : Text(
+                    "Récemment ajoutés",
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
+                  ),
+          ),
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(4.0),
