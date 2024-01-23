@@ -7,6 +7,7 @@ import 'package:flutter/services.dart'
 import 'package:provider/provider.dart'; // Pour utiliser le provider
 import 'package:docare/user.dart'; // Classe User
 import 'package:docare/document.dart'; // Classe Document
+import 'package:docare/file_system_entity.dart'; // Classe mère FileSystemEntity pour les dossiers et les documents
 
 import 'package:flutter/foundation.dart';
 import 'dart:html' as html; // Pour afficher une image dans un dialogue
@@ -70,30 +71,41 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
     );
   }
 
-  TextEditingController searchController =
-      TextEditingController(); // Contrôleur pour la barre de recherche
-  List<Document> filteredDocuments = []; // Liste des documents filtrés
+  TextEditingController searchController = TextEditingController(); // Contrôleur pour la barre de recherche
+  List<FileSystemEntity> filteredEntity = []; // Liste des dossiers/documents filtrés
 
   @override
   void initState() {
     // Méthode appelée au démarrage de l'application
     super.initState();
-    // Assuming `Provider.of<User>(context, listen: false).documentList` is your initial full list
-    filteredDocuments = Provider.of<User>(context, listen: false).folderList[0].files; // Liste des documents de l'utilisateur (dossier racine)
+
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].folders.length; i++) {
+      filteredEntity.add(Provider.of<User>(context, listen: false).folderList[0].folders[i]);
+    }
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].files.length; i++) {
+      filteredEntity.add(Provider.of<User>(context, listen: false).folderList[0].files[i]);
+    }
   }
 
   // Méthode pour rechercher un document
   void searchDocuments(String query) {
-    final documents = Provider.of<User>(context, listen: false).folderList[0].files; // Liste des documents de l'utilisateur (dossier racine)
+    List<FileSystemEntity> entity = [];
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].folders.length; i++) {
+      entity.add(Provider.of<User>(context, listen: false).folderList[0].folders[i]);
+    }
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].files.length; i++) {
+      entity.add(Provider.of<User>(context, listen: false).folderList[0].files[i]);
+    }
+
     if (query.isEmpty) {
       setState(() {
-        filteredDocuments = documents;
+        filteredEntity = entity;
       });
     } else {
       setState(() {
-        filteredDocuments = documents
+        filteredEntity = entity
             .where(
-                (doc) => doc.title.toLowerCase().contains(query.toLowerCase()))
+                (doc) => doc.name.toLowerCase().contains(query.toLowerCase()))
             .toList();
       });
     }
@@ -215,7 +227,6 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
             ),
           ),
           const SizedBox(width: 8.0),
-          
         ],
       ),
     );
@@ -266,11 +277,11 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
               ],
             ),
           ),
-          buildTopBar(
-              context), 
+          buildTopBar(context),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: filteredDocuments.isEmpty // Si aucun document n'est trouvé dans la recherche ou si aucun document n'a été ajouté
+            child: filteredEntity
+                    .isEmpty // Si aucun document n'est trouvé dans la recherche ou si aucun document n'a été ajouté
                 ? Text(
                     "Aucun document trouvé",
                     style: TextStyle(fontSize: 20, color: Colors.grey),
@@ -289,7 +300,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
-              itemCount: filteredDocuments
+              itemCount: filteredEntity
                   .length, // Remplacer par le nombre réel de documents (ou recherchés)
               itemBuilder: (context, index) {
                 return Card(
@@ -297,38 +308,49 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                   child: InkWell(
                     // Code pour visualiser le document
                     onTap: () async {
-                      String document = filteredDocuments[index].path; // Récupère le chemin du document
-
-                      if (filteredDocuments[index].fileType == 'img') {
-                        // It's an image
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              content: Image.asset(
-                                  document), // Use the path from the document data
-                              actions: <Widget>[
-                                Text(filteredDocuments[index].title),
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width /
-                                        15), // Ajuster la taille du SizedBox si nécessaire
-                                TextButton(
-                                  child: const Text('Fermer'),
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
-                              ],
-                            );
-                          },
+                      if (filteredEntity[index].type == true) {
+                        // Si c'est un dossier
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DocumentInterface()),
                         );
-                      } else if (filteredDocuments[index].fileType ==
-                          'pdf') {
-                        final fileBytes = await loadPdfFromAssets(
-                            document); // Charge le pdf depuis les assets
-                        _displayPdf(context,
-                            fileBytes); // Appelle la methode pour afficher le pdf
                       } else {
-                        print(
-                            "Type de fichier non supporté pour la visualisation directe.");
+                        // Si c'est un document
+
+                        Document document = filteredEntity[index]
+                            as Document; // Cast en Document
+                        if (document.fileType == 'img') {
+                          // It's an image
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: Image.asset(document
+                                    .path), // Use the path from the document data
+                                actions: <Widget>[
+                                  Text(document.title),
+                                  SizedBox(
+                                      width: MediaQuery.of(context).size.width /
+                                          15), // Ajuster la taille du SizedBox si nécessaire
+                                  TextButton(
+                                    child: const Text('Fermer'),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else if (document.fileType == 'pdf') {
+                          final fileBytes = await loadPdfFromAssets(
+                              document.path); // Charge le pdf depuis les assets
+                          _displayPdf(context,
+                              fileBytes); // Appelle la methode pour afficher le pdf
+                        } else {
+                          print(
+                              "Type de fichier non supporté pour la visualisation directe.");
+                        }
                       }
                     },
 
@@ -337,21 +359,30 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                         padding: const EdgeInsets.all(4.0),
                         color: Colors.blue.withOpacity(0.8),
                         child: Text(
-                          filteredDocuments[index].title,
+                          filteredEntity[index].name,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: filteredDocuments[index].fileType == 'img'
-                          ? // Conditionally render the Image.asset widget
-                          Image.asset(
-                              filteredDocuments[index].path,
-                              fit: BoxFit.cover,
-                            )
-                          : const Icon(Icons.picture_as_pdf,
+                      child: filteredEntity[index] is Document
+                          ? (filteredEntity[index] as Document).fileType ==
+                                  'img'
+                              ? Image.asset(
+                                  (filteredEntity[index] as Document)
+                                      .path, // Display the image for documents
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(
+                                  Icons
+                                      .picture_as_pdf, // PDF icon for PDF documents
+                                  size: 50,
+                                  color: Colors.blue,
+                                )
+                          : const Icon(
+                              Icons.folder, // Folder icon for folders
                               size: 50,
-                              color: Colors
-                                  .blue), // Render the Icon widget if it's not an image
+                              color: Colors.blue,
+                            ),
                     ),
                   ),
                 );
@@ -360,8 +391,6 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
           ),
           MyFooter(), // Affiche le footer
         ],
-        
-        
       ),
     );
   }

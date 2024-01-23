@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart'; // Pour utiliser le provider
 import 'package:docare/user.dart'; // Pour utiliser la classe User
 import 'package:docare/document.dart'; // Pour utiliser la classe Document
+import 'package:docare/file_system_entity.dart'; // Classe mère FileSystemEntity pour les dossiers et les documents
 
 // imports pour open_filex (pour ouvrir les fichiers)
 import 'package:open_filex/open_filex.dart';
@@ -194,35 +195,47 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
     );
   }
 
-  TextEditingController searchController =
-      TextEditingController(); // Contrôleur pour la barre de recherche
-  List<Document> filteredDocuments = []; // Liste des documents filtrés
+  TextEditingController searchController = TextEditingController(); // Contrôleur pour la barre de recherche
+  List<FileSystemEntity> filteredEntity = []; // Liste des dossiers/documents filtrés
+
 
   @override
   void initState() {
     // Méthode appelée au démarrage de l'application
     super.initState();
-    // Assuming `Provider.of<User>(context, listen: false).documentList` is your initial full list
-    filteredDocuments = Provider.of<User>(context, listen: false).folderList.first.files; // liste des documents de l'utilisateur (dossier racine)
+    
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].folders.length; i++) {
+      filteredEntity.add(Provider.of<User>(context, listen: false).folderList[0].folders[i]);
+    }
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].files.length; i++) {
+      filteredEntity.add(Provider.of<User>(context, listen: false).folderList[0].files[i]);
+    }
   }
 
+ 
   // Méthode pour rechercher un document
   void searchDocuments(String query) {
-    final documents = Provider.of<User>(context, listen: false).folderList.first.files; // liste des documents de l'utilisateur (dossier racine)
+    List<FileSystemEntity> entity = [];
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].folders.length; i++) {
+      entity.add(Provider.of<User>(context, listen: false).folderList[0].folders[i]);
+    }
+    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].files.length; i++) {
+      entity.add(Provider.of<User>(context, listen: false).folderList[0].files[i]);
+    }
+
     if (query.isEmpty) {
       setState(() {
-        filteredDocuments = documents;
+        filteredEntity = entity;
       });
     } else {
       setState(() {
-        filteredDocuments = documents
+        filteredEntity = entity
             .where(
-                (doc) => doc.title.toLowerCase().contains(query.toLowerCase()))
+                (doc) => doc.name.toLowerCase().contains(query.toLowerCase()))
             .toList();
       });
     }
   }
-
   @override
   Widget build(BuildContext context) {
     //final userProvider = Provider.of<User>(context, listen: false);
@@ -273,7 +286,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
           // texte "Mes documents" aligné à gauche
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: filteredDocuments.isEmpty // Si aucun document n'est trouvé dans la recherche ou si aucun document n'a été ajouté
+            child: filteredEntity.isEmpty // Si aucun document n'est trouvé dans la recherche ou si aucun document n'a été ajouté
                 ? Text(
                     "Aucun document trouvé",
                     style: TextStyle(fontSize: 20, color: Colors.grey),
@@ -292,40 +305,55 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
-              itemCount: filteredDocuments
-                  .length, // Remplacer par le nombre réel de documents
+              itemCount: filteredEntity.length, // Remplacer par le nombre réel de documents
               itemBuilder: (context, index) {
                 return Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
-                    onTap: () { // Lorsque l'utilisateur clique sur un document
-                      // Vérifiez si le fichier est une image
-                      Document file = filteredDocuments[index];
-                      _openFile(file, context);
+                    onTap: () async {
+                      if (filteredEntity[index].type == true) {
+                        // Si c'est un dossier
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DocumentInterface()),
+                        );
+                      } else {
+                        // Si c'est un document
+                        Document document = filteredEntity[index] as Document;
+                        _openFile(document, context);
+                      };
                     },
+                    
                     child: GridTile(
                       footer: Container(
                         padding: const EdgeInsets.all(4.0),
                         color: Colors.blue.withOpacity(0.8),
                         child: Text(
-                          filteredDocuments[index].title,
+                          filteredEntity[index].name,
                           textAlign: TextAlign.center,
                           style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: filteredDocuments[index].fileType ==
-                              'img' // Si le document est une image
-                          ? // Conditionally render the Image.asset widget
-                          Image.asset(
-                              filteredDocuments[index].path,
-                              fit: BoxFit.cover,
-                            )
+                      child: filteredEntity[index] is Document
+                          ? (filteredEntity[index] as Document).fileType ==
+                                  'img'
+                              ? Image.asset(
+                                  (filteredEntity[index] as Document)
+                                      .path, // Display the image for documents
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(
+                                  Icons
+                                      .picture_as_pdf, // PDF icon for PDF documents
+                                  size: 50,
+                                  color: Colors.blue,
+                                )
                           : const Icon(
-                              Icons
-                                  .picture_as_pdf, // Sinon, afficher l'icone PDF
+                              Icons.folder, // Folder icon for folders
                               size: 50,
-                              color: Colors
-                                  .blue), // Render the Icon widget if it's not an image
+                              color: Colors.blue,
+                            ),
                     ),
                   ),
                 );

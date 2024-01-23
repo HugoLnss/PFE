@@ -1,14 +1,15 @@
 import 'document.dart';
 import 'user.dart';
+import 'file_system_entity.dart';
 
-class Folder {
+class Folder extends FileSystemEntity {
 
   int id;
   String name;
   int parentId;
   List<Folder> folders;
   List<Document> files;
-  User ownerId;           // full access
+  User owner;           // full access
   List <User> sharedWith; // read only (?)
   
 
@@ -19,9 +20,18 @@ class Folder {
     required this.parentId,
     required this.folders,
     required this.files,
-    required this.ownerId,
+    required this.owner,
     required this.sharedWith,
-  });
+  }) : super(name: name, type: true) {
+    
+    if(parentId >= 0) {
+      for(int i = 0; i < owner.folderList.length; i++){ // Loop through the list of folders of the owner
+        if(owner.folderList[i].id == parentId){ // If the parent folder is found
+          owner.folderList[i].addFolder(this); // Add this folder to the parent folder
+        }
+      }
+    }
+  }
 
   // Add a folder to the list of folders
   void addFolder(Folder folder) {
@@ -56,7 +66,7 @@ class Folder {
   int getParentId() {return parentId;}
   List<Folder> getFolders() {return folders;}
   List<Document> getFiles() {return files;}
-  User getOwnerId() {return ownerId;}
+  User getOwnerId() {return owner;}
   List <User> getSharedWith() {return sharedWith;}
 
 

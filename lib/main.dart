@@ -23,10 +23,10 @@ void main() {
   Folder root = Folder( // Dossier racine
     id: 0,
     name: 'root',
-    parentId: 0, // pas de dossier parent (dossier racine)
+    parentId: -1, // pas de dossier parent (dossier racine)
     folders: [],
     files: [],
-    ownerId: currentUser,
+    owner: currentUser,
     sharedWith: [],
   );
 
@@ -51,9 +51,16 @@ void main() {
     folder: currentUser.folderList[0], // dossier racine
   );
 
-  currentUser.folderList[0].addFile(CNI); // Ajout de la CNI à la racine
-  currentUser.folderList[0].addFile(annaleIAM); 
 
+  Folder folder1 = Folder(
+    id: 1,
+    name: 'Dossier 1',
+    parentId: 0, // dossier parent = racine (automatiquement ajouté au parent)
+    folders: [],
+    files: [],
+    owner: currentUser,
+    sharedWith: [],
+  );
 
   runApp(
     ChangeNotifierProvider<User>(
@@ -134,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 // style pour le bouton "Mes documents"
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white, // Couleur de fond du bouton
-                  foregroundColor: Color.fromARGB(
+                  foregroundColor: const Color.fromARGB(
                       255, 53, 0, 243), // Couleur du texte du bouton
                   padding:
                       const EdgeInsets.symmetric(horizontal: 50, vertical: 17),

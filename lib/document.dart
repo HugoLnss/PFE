@@ -1,6 +1,7 @@
 import 'package:docare/folder.dart';
+import 'file_system_entity.dart';
 
-class Document {
+class Document extends FileSystemEntity {
   int id;
   String title;
   String fileType;
@@ -17,7 +18,10 @@ class Document {
     required this.creationDate,
     required this.ownerId,
     required this.folder,
-  });
+  
+  }) : super(name: title, type: false) {
+    folder.addFile(this); // Ajout du document au dossier
+  }
 
   // Getters
   int getId() {return id;}
