@@ -1,3 +1,5 @@
+import 'package:docare/folder.dart';
+
 class Document {
   int id;
   String title;
@@ -5,7 +7,7 @@ class Document {
   String path;  // chemin du fichier
   DateTime creationDate;
   int ownerId; // id de l'utilisateur propriétaire du document
-  
+  Folder folder; // id du dossier dans lequel se trouve le document
 
   Document({
     required this.id,
@@ -14,7 +16,15 @@ class Document {
     required this.path,
     required this.creationDate,
     required this.ownerId,
+    required this.folder,
   });
 
-  
+  // Getters
+  int getId() {return id;}
+  String getTitle() {return title;}
+  String getFileType() {return fileType;}
+  String getPath() {return path;}
+  DateTime getCreationDate() {return creationDate;}
+  int getOwnerId() {return ownerId;}
+  Folder getFolderId() {return folder;}
 }

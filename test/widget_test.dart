@@ -22,7 +22,7 @@ void main() {
       username: 'Lucas',
       email: 'lucas@gmail.com',
       passwordHash: 'password',
-      documentList: [],
+      folderList: [],
     ),
     child: MyApp(),
   ),

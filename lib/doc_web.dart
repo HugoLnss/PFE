@@ -79,12 +79,12 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
     // Méthode appelée au démarrage de l'application
     super.initState();
     // Assuming `Provider.of<User>(context, listen: false).documentList` is your initial full list
-    filteredDocuments = Provider.of<User>(context, listen: false).documentList;
+    filteredDocuments = Provider.of<User>(context, listen: false).folderList[0].files; // Liste des documents de l'utilisateur (dossier racine)
   }
 
   // Méthode pour rechercher un document
   void searchDocuments(String query) {
-    final documents = Provider.of<User>(context, listen: false).documentList;
+    final documents = Provider.of<User>(context, listen: false).folderList[0].files; // Liste des documents de l'utilisateur (dossier racine)
     if (query.isEmpty) {
       setState(() {
         filteredDocuments = documents;

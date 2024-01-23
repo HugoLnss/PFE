@@ -8,6 +8,7 @@ import 'package:docare/doc_mobile.dart' // par defaut charge la version mobile
 import 'package:provider/provider.dart'; // Pour utiliser le provider
 import 'package:docare/user.dart'; // Pour utiliser la classe User
 import 'package:docare/document.dart'; // Pour utiliser la classe Document
+import 'package:docare/folder.dart'; // Pour utiliser la classe Folder
 
 void main() {
   // Create user
@@ -16,8 +17,20 @@ void main() {
     username: 'Lucas',
     email: 'lucas@example.com',
     passwordHash: 'password',
-    documentList: [],
+    folderList: [],
   );
+
+  Folder root = Folder( // Dossier racine
+    id: 0,
+    name: 'root',
+    parentId: 0, // pas de dossier parent (dossier racine)
+    folders: [],
+    files: [],
+    ownerId: currentUser,
+    sharedWith: [],
+  );
+
+  currentUser.addFolder(root); // Ajout du dossier racine à l'utilisateur
 
   Document CNI = Document(
     id: 1,
@@ -26,6 +39,7 @@ void main() {
     path: 'assets/documents/CNI_example.png',
     creationDate: DateTime.now(),
     ownerId: currentUser.userId, // id de l'utilisateur propriétaire du document
+    folder: currentUser.folderList[0], // dossier racine
   );
   Document annaleIAM = Document(
     id: 1,
@@ -34,9 +48,12 @@ void main() {
     path: 'assets/documents/iam_DS-3.pdf',
     creationDate: DateTime.now(),
     ownerId: currentUser.userId, // id de l'utilisateur propriétaire du document
+    folder: currentUser.folderList[0], // dossier racine
   );
-  currentUser.addDocument(CNI);
-  currentUser.addDocument(annaleIAM);
+
+  currentUser.folderList[0].addFile(CNI); // Ajout de la CNI à la racine
+  currentUser.folderList[0].addFile(annaleIAM); 
+
 
   runApp(
     ChangeNotifierProvider<User>(
@@ -150,6 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
 
+            
             const Spacer(flex: 2)
           ],
         ),
