@@ -22,15 +22,13 @@ void main() {
 
   Folder root = Folder( // Dossier racine
     id: 0,
-    name: 'root',
+    name: 'home',
     parentId: -1, // pas de dossier parent (dossier racine)
     folders: [],
     files: [],
-    owner: currentUser,
+    owner: currentUser, // utilisateur propriétaire du dossier (automatiquement ajouté à la liste des dossiers de l'utilisateur)
     sharedWith: [],
   );
-
-  currentUser.addFolder(root); // Ajout du dossier racine à l'utilisateur
 
   Document CNI = Document(
     id: 1,
@@ -61,6 +59,18 @@ void main() {
     owner: currentUser,
     sharedWith: [],
   );
+  folder1.addFile(CNI); // Ajout du document CNI au dossier 1
+  
+  Folder folder2 = Folder(
+    id: 2,
+    name: 'Dossier 2',
+    parentId: 1, // dossier parent = racine (automatiquement ajouté au parent)
+    folders: [],
+    files: [],
+    owner: currentUser,
+    sharedWith: [],
+  );
+  folder2.addFile(annaleIAM); // Ajout du document annaleIAM au dossier 2
 
   runApp(
     ChangeNotifierProvider<User>(

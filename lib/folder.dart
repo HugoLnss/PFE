@@ -31,6 +31,7 @@ class Folder extends FileSystemEntity {
         }
       }
     }
+    owner.addFolder(this); // Add this folder to the list of folders of the owner
   }
 
   // Add a folder to the list of folders

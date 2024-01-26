@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart'; // Pour utiliser le provider
 import 'package:docare/user.dart'; // Pour utiliser la classe User
 import 'package:docare/document.dart'; // Pour utiliser la classe Document
+import 'package:docare/folder.dart'; // Pour utiliser la classe Folder
 import 'package:docare/file_system_entity.dart'; // Classe mère FileSystemEntity pour les dossiers et les documents
 
 // imports pour open_filex (pour ouvrir les fichiers)
@@ -94,7 +95,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                   borderSide: BorderSide.none,
                 ),
               ),
-              onChanged: (value) => searchDocuments(value), // Recherche
+              onChanged: (value) => searchDocuments(value, Provider.of<User>(context, listen: false).folderList[indexFolder]), // Recherche
             ),
           ),
           const SizedBox(width: 8.0),
@@ -197,7 +198,8 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
 
   TextEditingController searchController = TextEditingController(); // Contrôleur pour la barre de recherche
   List<FileSystemEntity> filteredEntity = []; // Liste des dossiers/documents filtrés
-
+  int idFolder = 0; // Index du dossier actuel - 0 = /home (ou root)
+  int indexFolder = 0;
 
   @override
   void initState() {
@@ -214,13 +216,13 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
 
  
   // Méthode pour rechercher un document
-  void searchDocuments(String query) {
+  void searchDocuments(String query, Folder folder) {
     List<FileSystemEntity> entity = [];
-    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].folders.length; i++) {
-      entity.add(Provider.of<User>(context, listen: false).folderList[0].folders[i]);
+    for (int i = 0; i < folder.folders.length; i++) {
+      entity.add(folder.folders[i]);
     }
-    for (int i = 0; i < Provider.of<User>(context, listen: false).folderList[0].files.length; i++) {
-      entity.add(Provider.of<User>(context, listen: false).folderList[0].files[i]);
+    for (int i = 0; i < folder.files.length; i++) {
+      entity.add(folder.files[i]);
     }
 
     if (query.isEmpty) {
@@ -236,9 +238,38 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
       });
     }
   }
+
+  // Méthode pour trouver l'index d'un dossier dans la liste des dossiers de l'utilisateur
+  int FindFolderIndexWithId(int id) {
+
+    for(int i = 0; i < Provider.of<User>(context, listen: false).folderList.length; i++) {
+      if(Provider.of<User>(context, listen: false).folderList[i].id == id) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  String getFolderPath() {
+    // Construit le chemin du dossier actuel pour l'afficher
+    String path = "";
+    Folder currentFolder = Provider.of<User>(context, listen: false).folderList[indexFolder];
+    int i = indexFolder;
+    while(currentFolder.parentId >= 0) { // Tant que le dossier actuel n'est pas /home 
+      path = "${Provider.of<User>(context, listen: false).folderList[i].name}/$path"; // Remonte d'un niveau
+      currentFolder = Provider.of<User>(context, listen: false).folderList[FindFolderIndexWithId(currentFolder.parentId)];
+      i = FindFolderIndexWithId(currentFolder.id);
+    }
+    path = "/home/$path"; // Ajoute /home au début du chemin
+    path = path.substring(0, path.length - 1); // Supprime le dernier /
+
+    return path;
+  }
+
   @override
   Widget build(BuildContext context) {
-    //final userProvider = Provider.of<User>(context, listen: false);
+    
+    String path = getFolderPath();
 
     return Scaffold(
       body: Column(
@@ -281,9 +312,29 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
               ],
             ),
           ),
-          buildTopBar(
-              context), // Barre de recherche (voir la méthode buildTopBar)
-          // texte "Mes documents" aligné à gauche
+          buildTopBar(context), // Barre de recherche (voir la méthode buildTopBar)
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: InkWell(
+                  // InkWell pour rendre l'image cliquable
+                  onTap: () {
+                    Folder folder = Provider.of<User>(context, listen: false).folderList[indexFolder];
+                    int parentdIndexFolder = FindFolderIndexWithId(folder.parentId); // Change the current folder index
+                    if(parentdIndexFolder < 0) parentdIndexFolder = 0; 
+                    setState(() {
+                          indexFolder = parentdIndexFolder;
+                          filteredEntity.clear(); // Clear the list of documents
+                          // Add folders and files from the selected folder to filteredEntity
+                          filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
+                          filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
+                        });
+                  },
+                  child: Text(
+                    path, // Affiche le chemin du dossier actuel
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                  ),
+                ),
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: filteredEntity.isEmpty // Si aucun document n'est trouvé dans la recherche ou si aucun document n'a été ajouté
@@ -310,14 +361,20 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                 return Card(
                   clipBehavior: Clip.antiAlias,
                   child: InkWell(
-                    onTap: () async {
+                    onTap: () {
                       if (filteredEntity[index].type == true) {
                         // Si c'est un dossier
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DocumentInterface()),
-                        );
+                        Folder folder = filteredEntity[index] as Folder; // Cast en Folder
+
+                        setState(() {
+
+                          indexFolder = FindFolderIndexWithId(folder.id); // Change the current folder index
+                          filteredEntity.clear(); // Clear the list of documents
+                          // Add folders and files from the selected folder to filteredEntity
+                          filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
+                          filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
+                        });
+
                       } else {
                         // Si c'est un document
                         Document document = filteredEntity[index] as Document;
@@ -336,11 +393,9 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                         ),
                       ),
                       child: filteredEntity[index] is Document
-                          ? (filteredEntity[index] as Document).fileType ==
-                                  'img'
+                          ? (filteredEntity[index] as Document).fileType == 'img'
                               ? Image.asset(
-                                  (filteredEntity[index] as Document)
-                                      .path, // Display the image for documents
+                                  (filteredEntity[index] as Document).path, // Display the image for documents
                                   fit: BoxFit.cover,
                                 )
                               : const Icon(
