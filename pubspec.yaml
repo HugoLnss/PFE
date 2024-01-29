@@ -71,6 +71,9 @@ flutter:
    - assets/images/ordonnance-pharmacie-1.png
    - assets/documents/CNI_example.png
    - assets/documents/iam_DS-3.pdf
+   - assets/images/folder.png
+   - assets/images/pdf_icon.jpeg
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

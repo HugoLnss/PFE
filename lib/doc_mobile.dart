@@ -63,6 +63,50 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
     }
   }
 
+  void newDocument() async {
+    // async pour pouvoir utiliser await
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(
+      withData: true, // Récupérer les données du fichier
+      type: FileType.custom,
+      allowedExtensions: [
+        'jpg',
+        'jpeg',
+        'png',
+        'pdf'
+      ], // Extensions de fichier autorisées
+    );
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Vérifiez si le fichier est une image
+      if (['jpg', 'jpeg', 'png'].contains(file.extension)) {
+        // Convertir en Uint8List
+        Uint8List? fileBytes = file.bytes;
+        if (fileBytes != null) {
+          // Proceed with your logic
+          Widget image = Image.memory(fileBytes);
+
+          // Ajouter le document à la liste des documents de l'utilisateur
+          // TO DO:
+        } else {
+          // Handle the situation where bytes are not available
+          print('Error: File bytes are null');
+        }
+      } else if (file.extension == 'pdf') {
+        // Faire de même pour les PDF
+      } else {
+        // Gérer les autres types de fichiers ici
+        print(
+            'Type de fichier non supporté pour la visualisation directe.');
+      }
+    } else {
+      // L'utilisateur a annulé la sélection de fichier
+      print('Aucun fichier sélectionné.');
+    }
+  }
+
   // Méthode pour construire la barre de recherche
   Widget buildTopBar(BuildContext context) {
     // Utilisez MediaQuery pour obtenir la largeur de l'écran
@@ -91,103 +135,63 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                 hintText: 'Rechercher un document',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
                   borderSide: BorderSide.none,
                 ),
               ),
               onChanged: (value) => searchDocuments(value, Provider.of<User>(context, listen: false).folderList[indexFolder]), // Recherche
             ),
           ),
-          const SizedBox(width: 8.0),
+          const SizedBox(width: 16.0),
           Flexible(
             child: ConstrainedBox(
               constraints: BoxConstraints.tightFor(width: buttonWidth),
-              child: ElevatedButton(
-                onPressed: () async {
-                  // async pour pouvoir utiliser await
-                  FilePickerResult? result =
-                      await FilePicker.platform.pickFiles(
-                    withData: true, // Récupérer les données du fichier
-                    type: FileType.custom,
-                    allowedExtensions: [
-                      'jpg',
-                      'jpeg',
-                      'png',
-                      'pdf'
-                    ], // Extensions de fichier autorisées
-                  );
-
-                  if (result != null) {
-                    PlatformFile file = result.files.first;
-
-                    // Vérifiez si le fichier est une image
-                    if (['jpg', 'jpeg', 'png'].contains(file.extension)) {
-                      // Convertir en Uint8List
-                      Uint8List? fileBytes = file.bytes;
-                      if (fileBytes != null) {
-                        // Proceed with your logic
-                        Widget image = Image.memory(fileBytes);
-
-                        // Ajouter le document à la liste des documents de l'utilisateur
-                        // TO DO:
-                      } else {
-                        // Handle the situation where bytes are not available
-                        print('Error: File bytes are null');
-                      }
-                    } else if (file.extension == 'pdf') {
-                      // Faire de même pour les PDF
-                    } else {
-                      // Gérer les autres types de fichiers ici
-                      print(
-                          'Type de fichier non supporté pour la visualisation directe.');
-                    }
-                  } else {
-                    // L'utilisateur a annulé la sélection de fichier
-                    print('Aucun fichier sélectionné.');
+              child: PopupMenuButton<String>(
+                onSelected: (String value) {
+                  // Handle the action when an item is selected
+                  print('You selected: $value');
+                  if (value == 'new_folder') {
+                    // Code to handle new folder creation
+                  } else if (value == 'new_document') {
+                    newDocument(); // Appelle la méthode pour créer un nouveau document
                   }
                 },
-                style: ElevatedButton.styleFrom(
-                  // Style du bouton
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue,
-                  textStyle: TextStyle(
-                    fontSize: screenWidth > 600
-                        ? 20
-                        : 14, // Ajuster cette valeur si nécessaire
-                  ),
-                ),
-
-                child: screenWidth > 700 // S'adapter à la taille de l'écran
-                    ? Text(
-                        'Ajouter un document') // Si l'écran est large (texte)
-                    : Icon(Icons.add,
-                        color: Colors.blue), // Si l'écran est petit (icone)
-              ),
-            ),
-          ),
-          const SizedBox(width: 8.0),
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints.tightFor(width: buttonWidth),
-              child: ElevatedButton(
-                onPressed: () async {
-                  // TO DO: Prendre une photo
+                itemBuilder: (BuildContext context) {
+                  return <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'new_document',
+                      child: Text('Nouveau Document'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'new_folder',
+                      child: Text('Nouveau dossier'),
+                    ),
+                    
+                  ];
                 },
-                style: ElevatedButton.styleFrom(
-                  // Style du bouton
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue,
-                  textStyle: TextStyle(
-                    fontSize: screenWidth > 600
-                        ? 20
-                        : 14, // Ajuster cette valeur si nécessaire
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Background color
+                    borderRadius: BorderRadius.circular(4.0), // Border radius
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 20.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // This will center the icon horizontally
+                      crossAxisAlignment: CrossAxisAlignment.center, // This will center the icon vertically
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: screenWidth > 700
+                        ? Text('Nouveau') // Si l'écran est large (texte)
+                        : Icon(Icons.add, color: Colors.blue) // Si l'écran est petit (icone)
+                        ),
+                        
+                        
+                      ],
+                    ),
                   ),
                 ),
-
-                child: screenWidth > 700 // S'adapter à la taille de l'écran
-                    ? Text('Prendre une photo') // Si l'écran est large (texte)
-                    : Icon(Icons.camera_alt,
-                        color: Colors.blue), // Si l'écran est petit (icone)
               ),
             ),
           ),
@@ -270,7 +274,6 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
   Widget build(BuildContext context) {
     
     String path = getFolderPath();
-
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Alignement à gauche
@@ -324,6 +327,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                     setState(() {
                           indexFolder = parentdIndexFolder;
                           filteredEntity.clear(); // Clear the list of documents
+                          searchController.clear(); // Clear the search bar
                           // Add folders and files from the selected folder to filteredEntity
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
@@ -343,7 +347,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                     style: TextStyle(fontSize: 20, color: Colors.grey),
                   )
                 : Text(
-                    "Récemment ajoutés",
+                    "Mes documents",
                     style: TextStyle(fontSize: 20, color: Colors.grey),
                   ),
           ),
@@ -351,7 +355,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
             child: GridView.builder(
               padding: const EdgeInsets.all(4.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (MediaQuery.of(context).size.width / 200)
+                crossAxisCount: (MediaQuery.of(context).size.width / 120)
                     .floor(), // le nobre d'éléments par ligne (adapté selon la taille de l'écran)
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
@@ -370,6 +374,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
 
                           indexFolder = FindFolderIndexWithId(folder.id); // Change the current folder index
                           filteredEntity.clear(); // Clear the list of documents
+                          searchController.clear(); // Clear the search bar
                           // Add folders and files from the selected folder to filteredEntity
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
@@ -398,17 +403,14 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                                   (filteredEntity[index] as Document).path, // Display the image for documents
                                   fit: BoxFit.cover,
                                 )
-                              : const Icon(
-                                  Icons
-                                      .picture_as_pdf, // PDF icon for PDF documents
-                                  size: 50,
-                                  color: Colors.blue,
+                              : Image.asset(
+                                  'assets/images/pdf_icon.jpeg', 
+                                  fit: BoxFit.cover,
                                 )
-                          : const Icon(
-                              Icons.folder, // Folder icon for folders
-                              size: 50,
-                              color: Colors.blue,
-                            ),
+                          : Image.asset(
+                                  'assets/images/folder.png', // Folder icon for folders
+                                  fit: BoxFit.cover,
+                                )
                     ),
                   ),
                 );

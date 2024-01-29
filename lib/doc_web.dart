@@ -15,20 +15,14 @@ import 'dart:html' as html; // Pour afficher une image dans un dialogue
 import 'dart:ui_web' as ui; // Pour afficher un pdf dans un dialogue
 
 import 'package:docare/footer_web.dart'; // Pour afficher le footer
+import 'package:docare/context_menu.dart'; // Pour afficher le menu contextuel (clic droit)
 
 class DocumentInterface extends StatefulWidget {
   @override
   _DocumentInterfaceState createState() => _DocumentInterfaceState();
 }
 
-class _DocumentInterfaceState extends State<DocumentInterface> {
-  // Méthode pour charger un pdf depuis les assets
-  Future<Uint8List> loadPdfFromAssets(String path) async {
-    final byteData = await rootBundle.load(path);
-    return byteData.buffer.asUint8List();
-  }
-
-  // Méthode pour afficher un pdf dans un dialogue
+// Méthode pour afficher un pdf dans un dialogue
   Future<void> _displayPdf(BuildContext context, Uint8List fileBytes) async {
     // Create a Blob from the Uint8List
     final blob = html.Blob([fileBytes], 'application/pdf');
@@ -71,6 +65,71 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
       },
     );
   }
+
+void newDocument(BuildContext context) async {
+    // async pour pouvoir utiliser await
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(
+      // Sélectionner un fichier
+      type: FileType.custom,
+      allowedExtensions: [
+        'jpg',
+        'jpeg',
+        'png',
+        'pdf'
+      ], // Extensions de fichier autorisées
+    );
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Vérifiez si le fichier est une image
+      if (['jpg', 'jpeg', 'png'].contains(file.extension)) {
+        // Convertir en Uint8List
+        Uint8List fileBytes = file.bytes!;
+        // Créer une image à partir des bytes
+        Widget image = Image.memory(fileBytes);
+
+        // Afficher l'image dans un dialogue
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: image,
+            actions: <Widget>[
+              TextButton(
+                child: Text('Fermer'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      } else if (file.extension == 'pdf') {
+        PlatformFile file =
+            result.files.first; // Récupérer le fichier
+        Uint8List? fileBytes =
+            file.bytes; // Convertir en Uint8List
+        if (fileBytes != null) {
+          await _displayPdf(context, fileBytes); // Appelle la methode pour afficher le pdf
+        }
+      } else {
+        // Gérer les autres types de fichiers ici
+        print(
+            'Type de fichier non supporté pour la visualisation directe.');
+      }
+    } else {
+      // L'utilisateur a annulé la sélection de fichier
+      print('Aucun fichier sélectionné.');
+    }
+  }
+class _DocumentInterfaceState extends State<DocumentInterface> {
+  // Méthode pour charger un pdf depuis les assets
+  Future<Uint8List> loadPdfFromAssets(String path) async {
+    final byteData = await rootBundle.load(path);
+    return byteData.buffer.asUint8List();
+  }
+
+  
+
+  
 
 
   // Méthode pour afficher une un document (image ou pdf) dans un dialogue
@@ -150,6 +209,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
     }
   }
 
+
   // Méthode pour construire la barre de recherche
   Widget buildTopBar(BuildContext context) {
     // Utilisez MediaQuery pour obtenir la largeur de l'écran
@@ -178,7 +238,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                 hintText: 'Rechercher un document',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
+                  borderRadius: BorderRadius.all(Radius.circular(4.0)),
                   borderSide: BorderSide.none,
                 ),
               ),
@@ -190,81 +250,60 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
           Flexible(
             child: ConstrainedBox(
               constraints: BoxConstraints.tightFor(width: buttonWidth),
-              child: ElevatedButton(
-                  // Bouton pour ajouter un document
-                  onPressed: () async {
-                    // async pour pouvoir utiliser await
-                    FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      // Sélectionner un fichier
-                      type: FileType.custom,
-                      allowedExtensions: [
-                        'jpg',
-                        'jpeg',
-                        'png',
-                        'pdf'
-                      ], // Extensions de fichier autorisées
-                    );
-
-                    if (result != null) {
-                      PlatformFile file = result.files.first;
-
-                      // Vérifiez si le fichier est une image
-                      if (['jpg', 'jpeg', 'png'].contains(file.extension)) {
-                        // Convertir en Uint8List
-                        Uint8List fileBytes = file.bytes!;
-                        // Créer une image à partir des bytes
-                        Widget image = Image.memory(fileBytes);
-
-                        // Afficher l'image dans un dialogue
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            content: image,
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text('Fermer'),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
+              child: PopupMenuButton<String>(
+                onSelected: (String value) {
+                  // Handle the action when an item is selected
+                  print('You selected: $value');
+                  if (value == 'new_folder') {
+                    // Code to handle new folder creation
+                  } else if (value == 'new_document') {
+                    newDocument(context); // Appelle la méthode pour créer un nouveau document
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'new_document',
+                      child: Text('Nouveau Document'),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'new_folder',
+                      child: Text('Nouveau dossier'),
+                    ),
+                    
+                  ];
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Background color
+                    borderRadius: BorderRadius.circular(4.0), // Border radius
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 13.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.add, color: Colors.blue), // Icon with color
+                        SizedBox(width: screenWidth > 600 ? 20 : 8), // Space between icon and text
+                        Align(
+                          alignment: Alignment.center, // Align text to the center
+                          child: Text(
+                            'Nouveau',
+                            style: TextStyle(
+                              fontSize: screenWidth > 600 ? 20 : 14, // Font size
+                              color: Colors.blue, // Text color
+                            ),
                           ),
-                        );
-                      } else if (file.extension == 'pdf') {
-                        PlatformFile file =
-                            result.files.first; // Récupérer le fichier
-                        Uint8List? fileBytes =
-                            file.bytes; // Convertir en Uint8List
-                        if (fileBytes != null) {
-                          await _displayPdf(context,
-                              fileBytes); // Appelle la methode pour afficher le pdf
-                        }
-                      } else {
-                        // Gérer les autres types de fichiers ici
-                        print(
-                            'Type de fichier non supporté pour la visualisation directe.');
-                      }
-                    } else {
-                      // L'utilisateur a annulé la sélection de fichier
-                      print('Aucun fichier sélectionné.');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.blue,
-                    textStyle: TextStyle(
-                      fontSize: screenWidth > 600
-                          ? 20
-                          : 14, // Ajuster cette valeur si nécessaire
+                        ),
+                        
+                      ],
                     ),
                   ),
-                  child: screenWidth > 700
-                      ? Text(
-                          'Ajouter un document') // Si l'écran est large (texte)
-                      : Icon(Icons.add,
-                          color: Colors.blue) // Si l'écran est petit (icone)
-                  ),
+                ),
+              ),
             ),
           ),
+
           const SizedBox(width: 8.0),
         ],
       ),
@@ -303,7 +342,8 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
     String path = getFolderPath();
 
     return Scaffold(
-      body: Column(
+      body: CustomContextMenuArea(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Alignement à gauche
         children: <Widget>[
           Container(
@@ -355,6 +395,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                     setState(() {
                           indexFolder = parentdIndexFolder;
                           filteredEntity.clear(); // Clear the list of documents
+                          searchController.clear(); // Clear the search bar
                           // Add folders and files from the selected folder to filteredEntity
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
@@ -375,7 +416,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                     style: TextStyle(fontSize: 20, color: Colors.grey),
                   )
                 : Text(
-                    "Récemment ajoutés",
+                    "Mes documents",
                     style: TextStyle(fontSize: 20, color: Colors.grey),
                   ),
           ),
@@ -383,7 +424,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
             child: GridView.builder(
               padding: const EdgeInsets.all(4.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (MediaQuery.of(context).size.width / 200)
+                crossAxisCount: (MediaQuery.of(context).size.width / 120)
                     .floor(), // le nobre d'éléments par ligne (adapté selon la taille de l'écran)
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
@@ -401,6 +442,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                         setState(() {
                           indexFolder = FindFolderIndexWithId(folder.id); // Change the current folder index
                           filteredEntity.clear(); // Clear the list of documents
+                          searchController.clear(); // Clear the search bar
                           // Add folders and files from the selected folder to filteredEntity
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
                           filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
@@ -429,17 +471,14 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                                       .path, // Display the image for documents
                                   fit: BoxFit.cover,
                                 )
-                              : const Icon(
-                                  Icons
-                                      .picture_as_pdf, // PDF icon for PDF documents
-                                  size: 50,
-                                  color: Colors.blue,
+                              : Image.asset(
+                                  'assets/images/pdf_icon.jpeg', 
+                                  fit: BoxFit.cover,
                                 )
-                          : const Icon(
-                              Icons.folder, // Folder icon for folders
-                              size: 50,
-                              color: Colors.blue,
-                            ),
+                          : Image.asset(
+                                  'assets/images/folder.png', // Folder icon for folders
+                                  fit: BoxFit.cover,
+                                )
                     ),
                   ),
                 );
@@ -449,6 +488,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
           MyFooter(), // Affiche le footer
         ],
       ),
+    ),
     );
   }
 }
