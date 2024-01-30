@@ -128,7 +128,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
 
   // Method to show dialog for new folder creation
   void showCreateFolderDialog(BuildContext context) {
-    final TextEditingController _folderNameController = TextEditingController();
+    final TextEditingController folderNameController = TextEditingController();
 
     showDialog(
       context: context,
@@ -136,7 +136,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
         return AlertDialog(
           title: const Text('Nouveau dossier'),
           content: TextField(
-            controller: _folderNameController,
+            controller: folderNameController,
             decoration: const InputDecoration(
               hintText: 'Dossier sans titre',
             ),
@@ -151,7 +151,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
             TextButton(
               child: const Text('Créer'),
               onPressed: () {
-                String folderName = _folderNameController
+                String folderName = folderNameController
                     .text; // Get the folder name from the input
                 if (folderName.isEmpty)
                   folderName =
@@ -348,8 +348,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                   if (value == 'new_folder') {
                     showCreateFolderDialog(context);
                   } else if (value == 'new_document') {
-                    newDocument(
-                        context); // Appelle la méthode pour créer un nouveau document
+                    newDocument(context); // Appelle la méthode pour créer un nouveau document
                   }
                 },
                 itemBuilder: (BuildContext context) {

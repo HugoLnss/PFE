@@ -421,8 +421,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
             child: GridView.builder(
               padding: const EdgeInsets.all(4.0),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (MediaQuery.of(context).size.width / 120)
-                    .floor(), // le nobre d'éléments par ligne (adapté selon la taille de l'écran)
+                crossAxisCount: (MediaQuery.of(context).size.width / 120).floor(), // le nobre d'éléments par ligne (adapté selon la taille de l'écran)
                 crossAxisSpacing: 10.0, // Espace horizontal entre les éléments
                 mainAxisSpacing: 10.0, // Espace vertical entre les éléments
               ),
@@ -430,55 +429,91 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
               itemBuilder: (context, index) {
                 return Card(
                   clipBehavior: Clip.antiAlias,
-                  child: InkWell(
-                    onTap: () {
-                      if (filteredEntity[index].type == true) {
-                        // Si c'est un dossier
-                        Folder folder = filteredEntity[index] as Folder; // Cast en Folder
+                    child: Builder(  // Use Builder to get the correct context for the grid item
+                      builder: (itemContext) => InkWell(
+                      onTap: () {
+                        if (filteredEntity[index].type == true) {
+                          // Si c'est un dossier
+                          Folder folder = filteredEntity[index] as Folder; // Cast en Folder
 
-                        setState(() {
+                          setState(() {
 
-                          indexFolder = FindFolderIndexWithId(folder.id); // Change the current folder index
-                          filteredEntity.clear(); // Clear the list of documents
-                          searchController.clear(); // Clear the search bar
-                          // Add folders and files from the selected folder to filteredEntity
-                          filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
-                          filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
+                            indexFolder = FindFolderIndexWithId(folder.id); // Change the current folder index
+                            filteredEntity.clear(); // Clear the list of documents
+                            searchController.clear(); // Clear the search bar
+                            // Add folders and files from the selected folder to filteredEntity
+                            filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].folders);
+                            filteredEntity.addAll(Provider.of<User>(context, listen: false).folderList[indexFolder].files);
+                          });
+
+                        } else {
+                          // Si c'est un document
+                          Document document = filteredEntity[index] as Document;
+                          _openFile(document, context);
+                        }
+                      },
+                      onLongPress: () { // Lorsque l'utilisateur appuie longuement sur un document/dossier
+                        final RenderBox itemBox = itemContext.findRenderObject() as RenderBox;
+                        final Offset position = itemBox.localToGlobal(Offset.zero);
+                        final Size size = itemBox.size; // gets the size of the element
+
+                        // Calculate the bottom left position of the element
+                        final Offset bottomLeft = position + Offset(0, size.height);
+
+                        showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(
+                            bottomLeft.dx, // Left position
+                            bottomLeft.dy, // Top position, which is actually the bottom of the element
+                            bottomLeft.dx, // Right position
+                            0, // Bottom position
+                          ),
+                          items: [
+                            const PopupMenuItem<String>(
+                              value: 'Renommer',
+                              child: Text('Rename'),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'Supprimer',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                        ).then((value) {
+                          if (value == 'rename') {
+                            // Code for renaming
+                          } else if (value == 'delete') {
+                            // Code for deleting
+                          }
                         });
-
-                      } else {
-                        // Si c'est un document
-                        Document document = filteredEntity[index] as Document;
-                        _openFile(document, context);
-                      };
-                    },
-                    
-                    child: GridTile(
-                      footer: Container(
-                        padding: const EdgeInsets.all(4.0),
-                        color: Colors.blue.withOpacity(0.8),
-                        child: Text(
-                          filteredEntity[index].name,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white),
+                      },
+                      
+                      child: GridTile(
+                        footer: Container(
+                          padding: const EdgeInsets.all(4.0),
+                          color: Colors.blue.withOpacity(0.8),
+                          child: Text(
+                            filteredEntity[index].name,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ),
+                        child: filteredEntity[index] is Document
+                            ? (filteredEntity[index] as Document).fileType == 'img'
+                                ? Image.asset(
+                                    (filteredEntity[index] as Document).path, // Display the image for documents
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    'assets/images/pdf_icon.jpeg', 
+                                    fit: BoxFit.cover,
+                                  )
+                            : Image.asset(
+                                    'assets/images/folder.png', // Folder icon for folders
+                                    fit: BoxFit.cover,
+                                  )
                       ),
-                      child: filteredEntity[index] is Document
-                          ? (filteredEntity[index] as Document).fileType == 'img'
-                              ? Image.asset(
-                                  (filteredEntity[index] as Document).path, // Display the image for documents
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  'assets/images/pdf_icon.jpeg', 
-                                  fit: BoxFit.cover,
-                                )
-                          : Image.asset(
-                                  'assets/images/folder.png', // Folder icon for folders
-                                  fit: BoxFit.cover,
-                                )
                     ),
-                  ),
+                  )
                 );
               },
             ),
