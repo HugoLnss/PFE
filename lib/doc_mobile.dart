@@ -22,6 +22,73 @@ class DocumentInterface extends StatefulWidget {
 }
 
 class _DocumentInterfaceState extends State<DocumentInterface> {
+
+  // Method to show dialog for new folder creation
+  void showCreateFolderDialog(BuildContext context) {
+    final TextEditingController folderNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Nouveau dossier'),
+          content: TextField(
+            controller: folderNameController,
+            decoration: const InputDecoration(
+              hintText: 'Dossier sans titre',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: const Text('Créer'),
+              onPressed: () {
+                String folderName = folderNameController
+                    .text; // Get the folder name from the input
+                if (folderName.isEmpty)
+                  folderName =
+                      "Dossier sans titre"; // If the folder name is empty, set it to "Dossier sans titre"
+                Folder newFolder = Folder(
+                  id: Provider.of<User>(context, listen: false)
+                      .folderList
+                      .length, // id = nombre de dossiers actuels
+                  name: folderName, // Nom du dossier
+                  parentId: Provider.of<User>(context, listen: false)
+                      .folderList[indexFolder]
+                      .id, // dossier parent = dossier actuel
+                  folders: [],
+                  files: [],
+                  owner: Provider.of<User>(context,
+                      listen: false), // Propriétaire = utilisateur actuel
+                  sharedWith: [],
+                );
+                folderName = ""; // Clear the folder name
+                setState(() {
+                  filteredEntity.clear(); // Clear the list of documents
+                  // Add folders and files from the selected folder to filteredEntity
+                  filteredEntity.addAll(
+                      Provider.of<User>(context, listen: false)
+                          .folderList[indexFolder]
+                          .folders);
+                  filteredEntity.addAll(
+                      Provider.of<User>(context, listen: false)
+                          .folderList[indexFolder]
+                          .files);
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // This method uses open_filex to open the file.
   void _openFile(Document file, BuildContext context) async {
     if (file.fileType == 'pdf') {
@@ -149,9 +216,8 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
               child: PopupMenuButton<String>(
                 onSelected: (String value) {
                   // Handle the action when an item is selected
-                  print('You selected: $value');
                   if (value == 'new_folder') {
-                    // Code to handle new folder creation
+                    showCreateFolderDialog(context); // Appelle la méthode pour créer un nouveau dossier
                   } else if (value == 'new_document') {
                     newDocument(); // Appelle la méthode pour créer un nouveau document
                   }

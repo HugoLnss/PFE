@@ -1,54 +1,118 @@
 import 'package:flutter/material.dart';
 import 'dart:html' as html;
-import 'package:docare/doc_web.dart'; 
+import 'package:provider/provider.dart';
+import 'package:docare/user.dart';
+import 'package:docare/folder.dart';
+
+class MenuActions with ChangeNotifier {
+
+  Future<void> newFolder(BuildContext context, int indexFolder, VoidCallback onComplete) async {
+    final TextEditingController _folderNameController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Nouveau dossier'),
+          content: TextField(
+            controller: _folderNameController,
+            decoration: const InputDecoration(
+              hintText: 'Dossier sans titre',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: const Text('Créer'),
+              onPressed: () {
+                String folderName = _folderNameController.text; // Get the folder name from the input
+                if(folderName.isEmpty) folderName = "Dossier sans titre"; // If the folder name is empty, set it to "Dossier sans titre"
+                Folder newFolder = Folder(
+                  id: Provider.of<User>(context, listen: false).folderList.length, // id = nombre de dossiers actuels
+                  name: folderName, // Nom du dossier
+                  parentId: Provider.of<User>(context, listen: false).folderList[indexFolder].id, // dossier parent = dossier actuel
+                  folders: [], 
+                  files: [],
+                  owner: Provider.of<User>(context, listen: false), // Propriétaire = utilisateur actuel
+                  sharedWith: [],
+                );
+                folderName = ""; // Clear the folder name
+                Navigator.of(context).pop(); // Close the dialog
+                // Call the callback function after folder creation
+                onComplete();
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    notifyListeners();
+  }
+
+  void newDocument() {
+    // Logic to create a new document
+    notifyListeners();
+  }
+}
 
 class CustomContextMenuArea extends StatelessWidget {
   final Widget child;
-
-  CustomContextMenuArea({required this.child});
+  final VoidCallback updateCallback;
+  final int indexFolder;
+  CustomContextMenuArea({required this.child, required this.updateCallback, required this.indexFolder});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onSecondaryTapUp: (details) {
-        // Add context menu event listener
         void contextMenuListener(html.Event event) {
           event.preventDefault();
-          // Remove the event listener after it's triggered
           html.window.removeEventListener('contextmenu', contextMenuListener);
         }
 
         html.window.addEventListener('contextmenu', contextMenuListener);
 
-        // Show the custom context menu
-        final position = details.globalPosition;
-        showMenu(
-          context: context,
-          position: RelativeRect.fromLTRB(
-            position.dx,
-            position.dy,
-            position.dx,
-            position.dy,
-          ),
-          items: [
-            const PopupMenuItem(
-              value: 'new_document',
-              child: Text('Nouveau Document'),
+        final RenderBox? overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
+        if (overlay != null) {
+          final RelativeRect position = RelativeRect.fromRect(
+            Rect.fromPoints(
+              details.globalPosition,
+              details.globalPosition,
             ),
-            const PopupMenuItem(
+            Offset.zero & overlay.size,
+          );
+
+          showMenu(
+            context: context,
+            position: position,
+            items: [
+            PopupMenuItem(
               value: 'new_folder',
-              child: Text('Nouveau dossier'),
+              child: const Text('Nouveau dossier'),
+              onTap: () {
+                // Perform the action for creating a new folder
+                Provider.of<MenuActions>(context, listen: false).newFolder(context, indexFolder, updateCallback); // Appel de la fonction newFolder
+              },
+              
+            ),
+            PopupMenuItem(
+              value: 'new_document',
+              child: const Text('Nouveau Document'),
+              onTap: () => Provider.of<MenuActions>(context, listen: false).newDocument(),
             ),
           ],
-        ).then((value) {
-          if (value == 'new_folder') {
-            //newFolder();
-          } else if (value == 'new_document') {
-            newDocument(context);
-          }
-        });
+          ).then((value) {
+          });
+        }
       },
       child: child,
     );
   }
 }
+

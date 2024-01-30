@@ -10,6 +10,9 @@ import 'package:docare/user.dart'; // Pour utiliser la classe User
 import 'package:docare/document.dart'; // Pour utiliser la classe Document
 import 'package:docare/folder.dart'; // Pour utiliser la classe Folder
 
+import 'package:docare/context_menu_mobile.dart'  // Charge la version mobile (dummy)
+  if(dart.library.html) 'package:docare/context_menu.dart'; // Pour utiliser la classe MenuActions
+
 void main() {
   // Create user
   User currentUser = User(
@@ -73,11 +76,15 @@ void main() {
   folder2.addFile(annaleIAM); // Ajout du document annaleIAM au dossier 2
 
   runApp(
-    ChangeNotifierProvider<User>(
-      create: (context) => currentUser, // On fournit l'utilisateur
-      child: const MyApp(),
-    ),
-  );
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider<User>(create: (context) => currentUser), // Existing user provider
+      ChangeNotifierProvider<MenuActions>(create: (context) => MenuActions()), // Additional MenuActions provider
+    ],
+    child: const MyApp(),
+  ),
+);
+
 }
 
 class MyApp extends StatelessWidget {
