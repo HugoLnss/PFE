@@ -50,9 +50,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
               onPressed: () {
                 String folderName = folderNameController
                     .text; // Get the folder name from the input
-                if (folderName.isEmpty)
-                  folderName =
-                      "Dossier sans titre"; // If the folder name is empty, set it to "Dossier sans titre"
+                if (folderName.isEmpty) folderName = "Dossier sans titre"; // If the folder name is empty, set it to "Dossier sans titre"
                 Folder newFolder = Folder(
                   id: Provider.of<User>(context, listen: false)
                       .folderList
@@ -66,7 +64,7 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                   owner: Provider.of<User>(context,
                       listen: false), // Propriétaire = utilisateur actuel
                   sharedWith: [],
-                );
+                  );
                 folderName = ""; // Clear the folder name
                 setState(() {
                   filteredEntity.clear(); // Clear the list of documents
@@ -470,17 +468,36 @@ class _DocumentInterfaceState extends State<DocumentInterface> {
                           ),
                           items: [
                             const PopupMenuItem<String>(
-                              value: 'Renommer',
-                              child: Text('Rename'),
+                              value: 'rename',
+                              child: Text('Renommer'),
                             ),
                             const PopupMenuItem<String>(
-                              value: 'Supprimer',
-                              child: Text('Delete'),
+                              value: 'delete',
+                              child: Text('Supprimer'),
                             ),
                           ],
                         ).then((value) {
                           if (value == 'rename') {
-                            // Code for renaming
+                            if(filteredEntity[index] is Document) {
+                              Document document = filteredEntity[index] as Document; // Cast en Document
+                              document.showRenameDocumentDialog(context); // Affiche la boîte de dialogue pour renommer le document
+                            }
+                            else {
+                              Folder folder = filteredEntity[index] as Folder; // Cast en Folder
+                              folder.showRenameFolderDialog(context); // Affiche la boîte de dialogue pour renommer le dossier
+                            }
+                            setState(() {
+                              filteredEntity.clear(); // Clear the list of documents
+                              // Add folders and files from the selected folder to filteredEntity
+                              filteredEntity.addAll(
+                                  Provider.of<User>(context, listen: false)
+                                      .folderList[indexFolder]
+                                      .folders);
+                              filteredEntity.addAll(
+                                  Provider.of<User>(context, listen: false)
+                                      .folderList[indexFolder]
+                                      .files);
+                            });
                           } else if (value == 'delete') {
                             // Code for deleting
                           }

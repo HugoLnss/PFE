@@ -88,27 +88,56 @@ class CustomContextMenuArea extends StatelessWidget {
             Offset.zero & overlay.size,
           );
 
-          showMenu(
-            context: context,
-            position: position,
-            items: [
-            PopupMenuItem(
-              value: 'new_folder',
-              child: const Text('Nouveau dossier'),
-              onTap: () {
-                // Perform the action for creating a new folder
-                Provider.of<MenuActions>(context, listen: false).newFolder(context, indexFolder, updateCallback); // Appel de la fonction newFolder
-              },
-              
-            ),
-            PopupMenuItem(
-              value: 'new_document',
-              child: const Text('Nouveau Document'),
-              onTap: () => Provider.of<MenuActions>(context, listen: false).newDocument(),
-            ),
-          ],
-          ).then((value) {
-          });
+          if(details.globalPosition.dy > 300) // Si le clic est dans la zone du dossier
+          {
+            showMenu(
+              context: context,
+              position: position,
+              items: [
+              PopupMenuItem(
+                value: 'rename',
+                child: const Text('Renommer'),
+                onTap: () {
+                  // Perform the action for creating a new folder
+                  print("Renommer");
+                },
+                
+              ),
+              PopupMenuItem(
+                value: 'delete',
+                child: const Text('Supprimer'),
+                onTap: () {
+
+                },
+              ),
+            ],
+            ).then((value) {
+            });
+          }
+          else {
+            showMenu(
+              context: context,
+              position: position,
+              items: [
+              PopupMenuItem(
+                value: 'new_folder',
+                child: const Text('Nouveau dossier'),
+                onTap: () {
+                  // Perform the action for creating a new folder
+                  Provider.of<MenuActions>(context, listen: false).newFolder(context, indexFolder, updateCallback); // Appel de la fonction newFolder
+                },
+                
+              ),
+              PopupMenuItem(
+                value: 'new_document',
+                child: const Text('Nouveau Document'),
+                onTap: () => Provider.of<MenuActions>(context, listen: false).newDocument(),
+              ),
+            ],
+            ).then((value) {
+            });
+          }
+          
         }
       },
       child: child,
