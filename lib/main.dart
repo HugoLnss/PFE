@@ -14,6 +14,7 @@ import 'package:docare/context_menu_mobile.dart'  // Charge la version mobile (d
   if(dart.library.html) 'package:docare/context_menu.dart'; // Pour utiliser la classe MenuActions
 
 void main() {
+  
   // Create user
   User currentUser = User(
     userId: 1,
@@ -74,6 +75,16 @@ void main() {
     sharedWith: [],
   );
   folder2.addFile(annaleIAM); // Ajout du document annaleIAM au dossier 2
+
+  Folder examensMedicaux = Folder(
+    id: 3,
+    name: 'Examens médicaux',
+    parentId: 0, // dossier parent = racine (automatiquement ajouté au parent)
+    folders: [],
+    files: [],
+    owner: currentUser,
+    sharedWith: [],
+  );
 
   runApp(
   MultiProvider(
