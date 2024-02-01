@@ -1,4 +1,4 @@
-#Thu Jan 11 17:44:58 CET 2024
-base.0=D\:\\projet\\DOCare\\PFE\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+#Wed Jan 31 13:42:02 CET 2024
+base.0=C\:\\Users\\hugol\\Desktop\\cours_ece\\PFE\\PFE\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex
