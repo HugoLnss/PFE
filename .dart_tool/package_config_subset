@@ -26,6 +26,7 @@ fake_async
 2.12
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/fake_async-1.3.1/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/fake_async-1.3.1/lib/
+<<<<<<< HEAD
 ffi
 3.0
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/ffi-2.1.0/
@@ -50,6 +51,16 @@ lints
 3.0
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/lints-3.0.0/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/lints-3.0.0/lib/
+=======
+flutter_lints
+2.19
+file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-2.0.3/
+file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-2.0.3/lib/
+lints
+3.0
+file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/lints-2.1.1/
+file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/lints-2.1.1/lib/
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
 matcher
 2.18
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/matcher-0.12.16/
@@ -62,6 +73,7 @@ meta
 2.12
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.10.0/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/meta-1.10.0/lib/
+<<<<<<< HEAD
 nested
 2.12
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/nested-1.0.0/
@@ -70,10 +82,13 @@ open_filex
 2.17
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/open_filex-4.3.4/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/open_filex-4.3.4/lib/
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
 path
 2.12
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/path-1.8.3/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/path-1.8.3/lib/
+<<<<<<< HEAD
 path_provider
 3.0
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider-2.1.2/
@@ -110,6 +125,8 @@ provider
 2.12
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/provider-6.1.1/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/provider-6.1.1/lib/
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
 source_span
 2.18
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/source_span-1.10.0/
@@ -142,6 +159,7 @@ web
 3.2
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/web-0.3.0/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/web-0.3.0/lib/
+<<<<<<< HEAD
 win32
 3.2
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.2.0/
@@ -150,6 +168,8 @@ xdg_directories
 3.0
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/xdg_directories-1.0.4/
 file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/xdg_directories-1.0.4/lib/
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
 docare
 3.2
 file:///C:/Users/hugol/Desktop/cours_ece/PFE/PFE/
@@ -166,8 +186,11 @@ flutter_test
 3.2
 file:///C:/Users/hugol/Desktop/cours_ece/PFE/flutter/packages/flutter_test/
 file:///C:/Users/hugol/Desktop/cours_ece/PFE/flutter/packages/flutter_test/lib/
+<<<<<<< HEAD
 flutter_web_plugins
 3.2
 file:///C:/Users/hugol/Desktop/cours_ece/PFE/flutter/packages/flutter_web_plugins/
 file:///C:/Users/hugol/Desktop/cours_ece/PFE/flutter/packages/flutter_web_plugins/lib/
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
 2

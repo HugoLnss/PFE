@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #Tue Jan 23 16:07:40 CET 2024
+=======
+#Wed Jan 31 13:42:02 CET 2024
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
 base.0=C\:\\Users\\hugol\\Desktop\\cours_ece\\PFE\\PFE\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 path.0=classes.dex
 renamed.0=classes.dex

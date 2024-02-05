@@ -44,6 +44,7 @@
       "languageVersion": "2.12"
     },
     {
+<<<<<<< HEAD
       "name": "ffi",
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/ffi-2.1.0",
       "packageUri": "lib/",
@@ -56,6 +57,8 @@
       "languageVersion": "2.19"
     },
     {
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
       "name": "flutter",
       "rootUri": "file:///C:/Users/hugol/Desktop/cours_ece/PFE/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -63,6 +66,7 @@
     },
     {
       "name": "flutter_lints",
+<<<<<<< HEAD
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-3.0.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
@@ -76,24 +80,34 @@
     {
       "name": "flutter_plugin_android_lifecycle",
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.17",
+=======
+      "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_lints-2.0.3",
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
     {
       "name": "flutter_test",
       "rootUri": "file:///C:/Users/hugol/Desktop/cours_ece/PFE/flutter/packages/flutter_test",
+<<<<<<< HEAD
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
     {
       "name": "flutter_web_plugins",
       "rootUri": "file:///C:/Users/hugol/Desktop/cours_ece/PFE/flutter/packages/flutter_web_plugins",
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
     {
       "name": "lints",
+<<<<<<< HEAD
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/lints-3.0.0",
+=======
+      "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/lints-2.1.1",
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -116,6 +130,7 @@
       "languageVersion": "2.12"
     },
     {
+<<<<<<< HEAD
       "name": "nested",
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/nested-1.0.0",
       "packageUri": "lib/",
@@ -184,6 +199,10 @@
     {
       "name": "provider",
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/provider-6.1.1",
+=======
+      "name": "path",
+      "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/path-1.8.3",
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -238,29 +257,39 @@
     {
       "name": "web",
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/web-0.3.0",
+<<<<<<< HEAD
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
     {
       "name": "win32",
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.2.0",
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
     {
+<<<<<<< HEAD
       "name": "xdg_directories",
       "rootUri": "file:///C:/Users/hugol/AppData/Local/Pub/Cache/hosted/pub.dev/xdg_directories-1.0.4",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
+=======
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
       "name": "docare",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     }
   ],
+<<<<<<< HEAD
   "generated": "2024-01-23T14:42:12.297430Z",
+=======
+  "generated": "2024-01-31T12:40:04.587990Z",
+>>>>>>> 90ee275b9820399d43226cd9523dfb2b234ea1ac
   "generator": "pub",
   "generatorVersion": "3.2.5"
 }
